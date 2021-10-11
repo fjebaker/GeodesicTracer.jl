@@ -1,0 +1,7 @@
+_scratch*.jl
+.venv
+venv
+build
+
+Manifest.toml
+copy_docs
