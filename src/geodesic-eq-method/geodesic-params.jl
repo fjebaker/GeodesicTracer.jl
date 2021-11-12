@@ -40,7 +40,8 @@ function GeodesicParams(α, β, s::BHSetup{M}, storage) where {M}
         # the impact paramter mapping of Bardeen and Cunningham
         ϕv₀ = -α / s.r₀^2,
         θv₀ = β / s.r₀^2,
-        chart_inner_radius = R₀(s.metric.M, s.metric.a),
+        # scale inner chart, since otherwise infinite affine parameter as approaching event horizon
+        chart_inner_radius = 1.01 * R₀(s.metric.M, s.metric.a),
         storage = storage
     )
 end
