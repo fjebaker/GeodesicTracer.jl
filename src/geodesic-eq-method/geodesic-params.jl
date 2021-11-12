@@ -33,14 +33,14 @@ end
 """
 GeodesicParams(α, β, s::BHSetup) = GeodesicParams(α, β, s::BHSetup, nothing)
 function GeodesicParams(α, β, s::BHSetup{M}, storage) where {M}
-    GeodesicParams{M}(
+    GeodesicParams(
         metric = s.metric,
         # TODO: impact parameter scaling
         # applied here is just a heuristic, noticing that scaling with s.r₀^2 approximately reproduces
         # the impact paramter mapping of Bardeen and Cunningham
-        ϕv₀ = α / s.r₀^2,
+        ϕv₀ = -α / s.r₀^2,
         θv₀ = β / s.r₀^2,
-        chart_inner_radius = R₀(metric.M, metric.a),
+        chart_inner_radius = R₀(s.metric.M, s.metric.a),
         storage = storage
     )
 end
@@ -48,6 +48,19 @@ end
 """
     $(TYPEDSIGNATURES)
 """
-function newparams(p::GeodesicParams, θ, r, α, β, δα)::GeodesicParams
-    @set(p.ϕv₀ = α + δα / s.r₀^2)
+function makeprobfunc(s, α_range, β, num)
+    α = α_range[1]
+    δα = (α_range[2] - α) / num
+    metric = s.metric
+    
+    (prob, i, repeat) -> begin
+        p = prob.p
+        x = @view(prob.u0[1:4])
+        
+        p = @set(p.ϕv₀ = -(α + i*δα) / x[2]^2)
+        v = (0.0, -1.0, p.θv₀, p.ϕv₀)
+        
+        new_u0 = SVector(x..., null_constrain(x, v, metric), -1.0, p.θv₀, p.ϕv₀)
+        remake(prob, p = p, u0 = new_u0)
+    end
 end

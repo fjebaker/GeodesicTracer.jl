@@ -27,12 +27,12 @@ where ``f`` is the field of view factor.
     "Inclination of observer."
     θ₀ = deg2rad(90.0)   # inclination
     "Initial position of observer."
-    r₀ = 500.0
+    r₀ = 1000.0
 
     "Lower bounds on the integrator time (there is no practical reason for this not to be 0.0."
     λlow = 0.0
     "Upper bounds on the integrator time."
-    λhigh = 1000.0
+    λhigh = 2000.0
 
     "Width of the rendered image in pixels (`Int`)."
     img_width::Int = 300

@@ -89,9 +89,7 @@ function calcgeodesic(
     save_geodesics = true,
     disk = nothing
 )
-    δα = (α_range[2] - α_range[1]) / num
-    probfunc(prob, i, repeat) =
-        remake(prob, p = newparams(prob.p, prob.u0[3], prob.u0[2], α_range[1], β, i * δα))
+    
     integrategeodesic(
         s,
         ParallelParams(
@@ -101,7 +99,7 @@ function calcgeodesic(
             α_end = α_range[2],
             save_geodesics = save_geodesics,
             ensemble = EnsembleThreads(),
-            probfunc = probfunc,
+            probfunc = makeprobfunc(s, α_range, β, num),
             callback = wrapcallback(s, disk)
         ),
         storage = isnothing(disk) ? nothing : 0.0
@@ -120,7 +118,7 @@ function integrategeodesic(s::BHSetup, cf::IntegratorConfig; storage = nothing)
     x = (0.0, s.r₀, s.θ₀, s.ϕ₀)
     v = (0.0, -1.0, p.θv₀, p.ϕv₀)
 
-    u0 = SVector(x..., null_constrain(x, v, s.metric), -1.0, p.θv0, p.ϕv0)
+    u0 = SVector(x..., null_constrain(x, v, s.metric), -1.0, p.θv₀, p.ϕv₀)
 
     integrate(u0, (s.λlow, s.λhigh), p, cf)
 end

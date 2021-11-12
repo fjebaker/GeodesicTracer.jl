@@ -70,3 +70,20 @@ function newparams(p::CarterGeodesicParams, θ, r, α, β, δα)::CarterGeodesic
     l, q = LQ(p.metric.M, r, p.metric.a, θ, α + δα, β)
     @set(@set(p.L = l).Q = q)
 end
+
+
+function makeprobfunc(s::BHSetup{CarterBoyerLindquist{T}}, α_range, β, num) where {T}
+    α = α_range[1]
+    δα = (α_range[2] - α) / num
+    metric = s.metric
+    
+    (prob, i, repeat) -> begin
+        p = prob.p
+        r = prob.u0[2]
+        θ = prob.u0[3]
+
+        l, q = LQ(metric.M, r, metric.a, θ, α + i*δα, β)
+        p = @set(@set(p.L = l).Q = q)
+        remake(prob, p = p)
+    end
+end
