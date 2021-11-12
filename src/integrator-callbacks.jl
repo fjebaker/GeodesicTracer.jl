@@ -20,10 +20,11 @@ occured.
 """
 function signflip(u, λ, integrator)
     p = integrator.p
+    metric = p.metric
 
-    if Vr(u, p) < 0
+    if Vr(metric.E, p.L, metric.M, p.Q, u[2], metric.a) < 0
         integrator.p = flip_rsign(λ, p)
-    elseif Vθ(u, p) < 0
+    elseif Vθ(metric.E, p.L, p.Q, metric.a, u[3]) < 0
         integrator.p = flip_θsign(λ, p)
     end
 
@@ -45,7 +46,7 @@ function wrapcallback(s::BHSetup, disk)
     DiscreteCallback(cb, terminate!)
 end
 
-function wrapcallback(s::BHSetup{CarterBoyerLindquist}, disk)
+function wrapcallback(s::BHSetup{CarterBoyerLindquist{T}}, disk) where {T}
     cb =
         isnothing(disk) ? signflip :
         (u, λ, integrator) -> begin

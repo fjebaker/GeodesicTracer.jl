@@ -140,7 +140,6 @@ end
 """
 @inline function integrate(x::StaticVector, time_domain, p, cf::IntegratorConfig)
     prob = ODEProblem{false}(rayintegrator, x, time_domain, p)
-    #(prob, cf)
     solvegeodesic(prob, cf)
 end
 @inline function integrate(x::AbstractVector, time_domain, p, cf::IntegratorConfig)

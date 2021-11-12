@@ -9,7 +9,7 @@ From Bardeen et al. (1972) eq. (2.10):
 T = E \\left( r^2 + a^2 \\right) - L * a.
 ```
 """
-T(E, L, r, a) = E * (r^2 + a^2) - L * a
+@inline T(E, L, r, a) = E * (r^2 + a^2) - L * a
 
 
 """
@@ -23,7 +23,7 @@ From Bardeen et al. (1972) eq. (2.10), for the special case of a null-geodesic `
 V_r = T^2 - \\Delta \\left[ (L - a E)^2 + Q \\right]
 ```
 """
-Vr(E, L, M, Q, r, a) = T(E, L, r, a)^2 - Δ(M, r, a) * ((L - a * E)^2 + Q)
+@inline Vr(E, L, M, Q, r, a) = T(E, L, r, a)^2 - Δ(M, r, a) * ((L - a * E)^2 + Q)
 
 
 """
@@ -38,7 +38,7 @@ V_\\theta =
     Q + \\cos^2 (\\theta) \\left[ a^2 E^2 - \\frac{L^2}{\\sin^2 (\\theta) } \\right].
 ```
 """
-Vθ(E, L, Q, a, θ) = Q + cos(θ)^2 * ((a * E)^2 - (L / sin(θ))^2)
+@inline Vθ(E, L, Q, a, θ) = Q + cos(θ)^2 * ((a * E)^2 - (L / sin(θ))^2)
 
 
 """
@@ -57,7 +57,7 @@ From Bardeen et al. (1972) eq. (2.9d):
 + \\frac{\\left( r^2 + a^2 \\right) T}{\\Delta}.
 ```
 """
-function Σδt_δλ(E, L, M, r, a, θ)
+@inline function Σδt_δλ(E, L, M, r, a, θ)
     -a * (a * E * sin(θ)^2 - L) + (r^2 + a^2) * T(E, L, r, a) / Δ(M, r, a)
 end
 
@@ -80,7 +80,7 @@ Modified from Bardeen et al. (1972) eq. (2.9a):
 where, for implementation reason, the sign is always positive. Instead, the sign is applied 
 in [`δ`](@ref).
 """
-function Σδr_δλ(E, L, M, Q, r, a)
+@inline function Σδr_δλ(E, L, M, Q, r, a)
     V = Vr(E, L, M, Q, r, a)
     √(V * sign(V))
 end
@@ -104,7 +104,7 @@ Modified from Bardeen et al. (1972) eq. (2.9b):
 where, for implementation reason, the sign is always positive. Instead, the sign is applied 
 in [`δ`](@ref).
 """
-function Σδθ_δλ(E, L, Q, a, θ)
+@inline function Σδθ_δλ(E, L, Q, a, θ)
     V = Vθ(E, L, Q, a, θ)
     √(V * sign(V))
 end
@@ -126,7 +126,7 @@ From Bardeen et al. (1972) eq. (2.9c):
 + \\frac{aT}{\\Delta}.
 ```
 """
-function Σδϕ_δλ(E, L, M, r, a, θ)
+@inline function Σδϕ_δλ(E, L, M, r, a, θ)
     (L / sin(θ)^2) - (a * E) + a * T(E, L, r, a) / Δ(M, r, a)
 end
 
@@ -154,7 +154,7 @@ Returns a [`FourVector`](@ref) with components
 @inline function δ(x::T, p)::T where {T<:AbstractVector}
     metric = p.metric
     Σ₀ = Σ(x[2], metric.a, x[3])
-    T(
+    @inbounds T(
         Σδt_δλ(metric.E, p.L, metric.M, x[2], metric.a, x[3]) / Σ₀,
         p.r_sign * Σδr_δλ(metric.E, p.L, metric.M, p.Q, x[2], metric.a) / Σ₀,
         p.θ_sign * Σδθ_δλ(metric.E, p.L, p.Q, metric.a, x[3]) / Σ₀,
