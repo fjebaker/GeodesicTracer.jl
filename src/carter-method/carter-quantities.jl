@@ -153,13 +153,15 @@ Returns a [`FourVector`](@ref) with components
 """
 @inline function δ(x::T, p)::T where {T<:AbstractVector}
     metric = p.metric
-    Σ₀ = Σ(x[2], metric.a, x[3])
-    @inbounds T(
-        Σδt_δλ(metric.E, p.L, metric.M, x[2], metric.a, x[3]) / Σ₀,
-        p.r_sign * Σδr_δλ(metric.E, p.L, metric.M, p.Q, x[2], metric.a) / Σ₀,
-        p.θ_sign * Σδθ_δλ(metric.E, p.L, p.Q, metric.a, x[3]) / Σ₀,
-        Σδϕ_δλ(metric.E, p.L, metric.M, x[2], metric.a, x[3]) / Σ₀
-    )
+    @inbounds let E = metric.E, L = p.L, M = metric.M, r = x[2], a = metric.a, θ = x[3]
+        Σ₀ = Σ(r, metric.a, θ)
+        T(
+            Σδt_δλ(E, L, M, r, a, θ) / Σ₀,
+            p.r_sign * Σδr_δλ(E, L, M, p.Q, r, a) / Σ₀,
+            p.θ_sign * Σδθ_δλ(E, L, p.Q, a, θ) / Σ₀,
+            Σδϕ_δλ(E, L, M, r, a, θ) / Σ₀
+        )
+    end
 end
 
 """
@@ -169,12 +171,14 @@ Inplace variant of [`δ`](@ref).
 """
 @inline function δ!(res, x, p)
     metric = p.metric
-    Σ₀ = Σ(x[2], metric.a, x[3])
-    @inbounds begin
-        res[1] = Σδt_δλ(metric.E, p.L, metric.M, x[2], metric.a, x[3]) / Σ₀
-        res[2] = p.r_sign * Σδr_δλ(metric.E, p.L, metric.M, p.Q, x[2], metric.a) / Σ₀
-        res[3] = p.θ_sign * Σδθ_δλ(metric.E, p.L, p.Q, metric.a, x[3]) / Σ₀
-        res[4] = Σδϕ_δλ(metric.E, p.L, metric.M, x[2], metric.a, x[3]) / Σ₀
+    @inbounds let E = metric.E, L = p.L, M = metric.M, r = x[2], a = metric.a, θ = x[3]
+        Σ₀ = Σ(r, metric.a, θ)
+
+        res[1] = Σδt_δλ(E, L, M, r, a, θ) / Σ₀
+        res[2] = p.r_sign * Σδr_δλ(E, L, M, p.Q, r, a) / Σ₀
+        res[3] = p.θ_sign * Σδθ_δλ(E, L, p.Q, a, θ) / Σ₀
+        res[4] = Σδϕ_δλ(E, L, M, r, a, θ) / Σ₀
+
     end
 end
 

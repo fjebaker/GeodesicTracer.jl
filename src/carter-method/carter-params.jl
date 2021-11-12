@@ -9,7 +9,7 @@ A Carter-Boyer-Lindquist method specialisation of [`GeodesicParams`](@ref).
 
 @with_kw struct CarterGeodesicParams{V,T} <: AbstractGeodesicParams{V,T}
     @deftype T
-    metric::CarterBoyerLindquist
+    metric::CarterBoyerLindquist{T}
 
     L
     Q
