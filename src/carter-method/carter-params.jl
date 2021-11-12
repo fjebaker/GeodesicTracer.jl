@@ -67,6 +67,6 @@ flip_θsign(λ, p::CarterGeodesicParams) = @set(@set(p.θ_sign = -p.θ_sign).λ�
     $(TYPEDSIGNATURES)
 """
 function newparams(p::CarterGeodesicParams, θ, r, α, β, δα)::CarterGeodesicParams
-    l, q = LQ(p.M, r, p.a, θ, α + δα, β)
+    l, q = LQ(p.metric.M, r, p.metric.a, θ, α + δα, β)
     @set(@set(p.L = l).Q = q)
 end

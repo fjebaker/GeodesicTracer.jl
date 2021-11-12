@@ -167,7 +167,7 @@ end
 
 Inplace variant of [`δ`](@ref).
 """
-@inline function δ!(res, x)
+@inline function δ!(res, x, p)
     metric = p.metric
     Σ₀ = Σ(x[2], metric.a, x[3])
     @inbounds begin

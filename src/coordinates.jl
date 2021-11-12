@@ -79,9 +79,10 @@ Depending on whether the [`AbstractSpinDirection`](@ref) is `ContraRotating` or
 """
 @inline rms(M, a; ± = +) =
     M * (3 + Z₂(M, a) ± √((3 - Z₁(M, a)) * (3 + Z₁(M, a) + 2 * Z₂(M, a))))
-@inline rms(p::CarterGeodesicParams) = p.rms
-@inline rms(s::BHSetup) = s.a < 0.0 ? rms(s.M, s.a) : rms(s.M, s.a; ± = -)
-
+@inline function rms(s::BHSetup) 
+    metric = s.metric
+    metric.a < 0.0 ? rms(metric.M, metric.a) : rms(metric.M, metric.a; ± = -)
+end
 
 """
     $(TYPEDSIGNATURES)
@@ -95,4 +96,4 @@ R_0 = M + \\sqrt{M^2 + a^2}.
 ```
 """
 @inline R₀(M, a) = M + √(M^2 - a^2)
-@inline R₀(s::BHSetup) = R₀(s.M, s.a)
+@inline R₀(s::BHSetup) = R₀(s.metric.M, s.metric.a)

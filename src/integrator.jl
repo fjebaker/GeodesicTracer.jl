@@ -132,7 +132,6 @@ function integrategeodesic(
     p = CarterGeodesicParams(cf.α, cf.β, s, storage)
 
     u0 = SVector(0.0, s.r₀, s.θ₀, s.ϕ₀)
-
     integrate(u0, (s.λlow, s.λhigh), p, cf)
 end
 
