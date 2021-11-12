@@ -24,8 +24,10 @@ These are calculated by [`δ`](@ref).
 
 This function can be dispatched over `p` if needed.
 """
-function rayintegrator(u, p, λ)
-    δ(u, p)
+function rayintegrator(u, p::GeodesicParams, λ)
+    x = @inbounds @view(u[1:4])
+    v = @inbounds @view(u[5:8])
+    SVector(v..., geodesic_eq(x, v, p.metric)...)
 end
 
 """
@@ -33,60 +35,13 @@ end
 
 Inplace variant of [`rayintegrator`](@ref).
 """
-function rayintegrator!(du, u, p, λ)
-    δ!(du, u, p)
+function rayintegrator!(du, u, p::GeodesicParams, λ)
+    x = @inbounds @view(u[1:4])
+    v = @inbounds @view(u[5:8])
+    du[1:4] .= v
+    du[5:8] .= geodesic_eq(x, v, p.metric)
 end
-function rayintegrator!(du, u, p::AbstractArray{GeodesicParams}, λ)
-    # gpu version requires parameter unpacking
-    δ!(du, u, p[1])
-end
-
-"""
-    $(TYPEDSIGNATURES)
-
-Monitors [`Vr`](@ref) and [`Vθ`](@ref) and flips signs stored repsectively in the 
-integrator parameter if they are negative, along with storing the time at which this 
-    occured.
-
-Furthermore, is used in the `DiscreteCallback` of the integrator to check if the geodesic is 
-still in the local chart.
-
-In practice, we check ``r > R_0 + \\epsilon``, with ``\\epsilon`` small, and ``r < \\infty``, 
-where our effective infinity is hardcoded as `1200.0`.
-"""
-function signflip(u, λ, integrator)
-    p = integrator.p
-
-    if Vr(u, p) < 0
-        integrator.p = flip_rsign(λ, p)
-    elseif Vθ(u, p) < 0
-        integrator.p = flip_θsign(λ, p)
-    end
-
-    on_chart = p.R₀ < u[2] < 1200.0
-    !on_chart
-end
-
-"""
-    $(TYPEDSIGNATURES)
-
-Creates a callback function which invoked [`signflip`](@ref) and checks intersections with
-the disk given by `disk`.
-"""
-function wrapcallback(disk)
-    (u, λ, integrator) -> begin
-        signflip(u, λ, integrator) || intersect!(integrator, u, disk)
-    end
-end
-
-
-"""
-    $(TYPEDSIGNATURES)
-"""
-function newparams(p::GeodesicParams, θ, r, α, β, δα)::GeodesicParams
-    l, q = LQ(p.M, r, p.a, θ, α + δα, β)
-    @set(@set(p.L = l).Q = q)
-end
+rayintegrator!(du, u, p::AbstractArray{GeodesicParams}, λ) = rayintegrator!(du, u, p[1], λ)
 
 
 """
@@ -113,10 +68,7 @@ function calcgeodesic(
             α = α,
             β = β,
             save_geodesics = save_geodesics,
-            callback = callback = DiscreteCallback(
-                isnothing(disk) ? signflip : wrapcallback(disk),
-                terminate!
-            )
+            callback = wrapcallback(s, disk)
         ),
         storage = isnothing(disk) ? nothing : 0.0
     )
@@ -150,10 +102,7 @@ function calcgeodesic(
             save_geodesics = save_geodesics,
             ensemble = EnsembleThreads(),
             probfunc = probfunc,
-            callback = DiscreteCallback(
-                isnothing(disk) ? signflip : wrapcallback(disk),
-                terminate!
-            )
+            callback = wrapcallback(s, disk)
         ),
         storage = isnothing(disk) ? nothing : 0.0
     )
@@ -167,22 +116,29 @@ this method, see [`BHSetup`](@ref) and [`IntegratorConfig`](@ref).
 """
 function integrategeodesic(s::BHSetup, cf::IntegratorConfig; storage = nothing)
     p = GeodesicParams(cf.α, cf.β, s, storage)
-    integrate(s, p, cf)
+
+    x = (0.0, s.r₀, s.θ₀, s.ϕ₀)
+    v = (0.0, -1.0, p.θv₀, p.ϕv₀)
+
+    u0 = SVector(x..., null_constrain(x, v, s.metric), -1.0, p.θv0, p.ϕv0)
+
+    integrate(u0, (s.λlow, s.λhigh), p, cf)
+end
+function integrategeodesic(
+    s::BHSetup{CarterBoyerLindquist{T}},
+    cf::IntegratorConfig;
+    storage = nothing
+) where {T}
+    p = CarterGeodesicParams(cf.α, cf.β, s, storage)
+
+    u0 = SVector(0.0, s.r₀, s.θ₀, s.ϕ₀)
+
+    integrate(u0, (s.λlow, s.λhigh), p, cf)
 end
 
-# fallback
-@inline function integrate(s::BHSetup, p, cf::IntegratorConfig)
-    x = SVector(0.0, s.r₀, s.θ₀, s.ϕ₀)
-    integrate(x, (s.λlow, s.λhigh), p, cf)
-end
-
-# GPU
-@inline function integrate(s::BHSetup, p, cf::ParallelParams{EnsembleGPUArray})
-    # make everything float 32 for GPU
-    x = Float32[0.0f0, s.r₀, s.θ₀, s.ϕ₀]
-    integrate(x, (Float32(s.λlow), Float32(s.λhigh)), [changetype(Float32, p)], cf)
-end
-
+"""
+    $(TYPEDSIGNATURES)
+"""
 @inline function integrate(x::StaticVector, time_domain, p, cf::IntegratorConfig)
     prob = ODEProblem{false}(rayintegrator, x, time_domain, p)
     #(prob, cf)
@@ -190,6 +146,16 @@ end
 end
 @inline function integrate(x::AbstractVector, time_domain, p, cf::IntegratorConfig)
     prob = ODEProblem{true}(rayintegrator!, x, time_domain, p)
+    solvegeodesic(prob, cf)
+end
+@inline function integrate(
+    x::AbstractVector,
+    time_domain,
+    p,
+    cf::IntegratorConfig{EnsembleGPUArray}
+)
+    x = Float32[x...]
+    prob = ODEProblem{true}(rayintegrator!, x, time_domain, [changetype(Float32, p)])
     solvegeodesic(prob, cf)
 end
 

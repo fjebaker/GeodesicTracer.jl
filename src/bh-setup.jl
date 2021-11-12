@@ -17,14 +17,10 @@ via
 
 where ``f`` is the field of view factor.
 """
-@with_kw mutable struct BHSetup
+@with_kw mutable struct BHSetup{M}
     @deftype Float64
-    "Mass."
-    M = 1.0
-    "Energy."
-    E = 1.0
-    "Spin parameter."
-    a = 0.0
+    "Metric structure."
+    metric::M = CarterBoyerLindquist()
 
     "Azimuthal angle of observer."
     ϕ₀ = 0.0             # azimuthal angle
