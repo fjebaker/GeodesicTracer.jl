@@ -1,3 +1,4 @@
+using LinearAlgebra
 
 """
     $(TYPEDEF)
@@ -46,6 +47,7 @@ function GeodesicParams(α, β, s::BHSetup{M}, storage) where {M}
     )
 end
 
+
 """
     $(TYPEDSIGNATURES)
 """
@@ -59,7 +61,8 @@ function makeprobfunc(s, α_range, β, num)
         x = @view(prob.u0[1:4])
         
         p = @set(p.ϕv₀ = -(α + i*δα) / x[2]^2)
-        v = (0.0, -1.0, p.θv₀, p.ϕv₀)
+        v = SVector(0.0, -1.0, p.θv₀, p.ϕv₀)
+        v = v / norm(v)
         
         new_u0 = SVector(x..., null_constrain(x, v, metric), -1.0, p.θv₀, p.ϕv₀)
         remake(prob, p = p, u0 = new_u0)
