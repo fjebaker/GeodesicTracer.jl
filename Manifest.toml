@@ -175,7 +175,7 @@ version = "0.1.1"
 
 [[ComputedGeodesicEquations]]
 deps = ["JuliaFormatter", "Parameters"]
-git-tree-sha1 = "95f075d15e957fed8e8980c022f777d22001febb"
+git-tree-sha1 = "f67f4abd7b6873f8999956f57b75fe7290227251"
 repo-rev = "main"
 repo-url = "https://github.com/astro-group-bristol/ComputedGeodesicEquations.jl"
 uuid = "42910a5e-bdf1-4870-a538-dfa35571a56d"
