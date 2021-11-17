@@ -29,6 +29,21 @@ type should not be created or modified by the user.
     storage::V = nothing
 end
 
+function gθθ(r, θ, M, a)
+    a^2 * cos(θ)^2 + r^2
+end
+
+function gtt(r, θ, M, a)
+    -(2 * 2*M * r * a * sin(θ)^2) / r^2 + a^2 * cos(θ)^2
+end
+
+function gϕϕ(r, θ, M, a)
+    sin(θ)^2 * (r^2 + a^2 + sin(θ)^2 * 2*M * r * a^2/(r^2 + a^2 * cos(θ)^2))
+end
+
+
+    
+
 """
     $(TYPEDSIGNATURES)
 """
@@ -39,8 +54,8 @@ function GeodesicParams(α, β, s::BHSetup{M}, storage) where {M}
         # TODO: impact parameter scaling
         # applied here is just a heuristic, noticing that scaling with s.r₀^2 approximately reproduces
         # the impact paramter mapping of Bardeen and Cunningham
-        ϕv₀ = -α / s.r₀^2,
-        θv₀ = -β / s.r₀^2,
+        ϕv₀ = -α / gϕϕ(s.r₀, s.θ₀, s.metric.M, s.metric.a),
+        θv₀ = -β / gθθ(s.r₀, s.θ₀, s.metric.M, s.metric.a),
         # scale inner chart, since otherwise infinite affine parameter as approaching event horizon
         chart_inner_radius = 1.01 * R₀(s.metric.M, s.metric.a),
         storage = storage
@@ -60,11 +75,12 @@ function makeprobfunc(s, α_range, β, num)
         p = prob.p
         x = @view(prob.u0[1:4])
         
-        p = @set(p.ϕv₀ = -(α + i*δα) / x[2]^2)
-        v = SVector(0.0, -1.0, p.θv₀, p.ϕv₀)
-        v = v / norm(v)
+        p = @set(p.ϕv₀ = -(α + i*δα) / gϕϕ(x[2], x[3], metric.M, metric.a))
+
+        r0 = -1.0
+        v = (0.0, r0, p.θv₀, p.ϕv₀)
+        vtemp = SVector(null_constrain(x, v, metric), r0, p.θv₀, p.ϕv₀)
         
-        new_u0 = SVector(x..., null_constrain(x, v, metric), -1.0, p.θv₀, p.ϕv₀)
-        remake(prob, p = p, u0 = new_u0)
+        remake(prob, p = p, du0 = vtemp)
     end
 end

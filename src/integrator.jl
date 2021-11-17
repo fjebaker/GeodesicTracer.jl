@@ -24,10 +24,8 @@ These are calculated by [`δ`](@ref).
 
 This function can be dispatched over `p` if needed.
 """
-function rayintegrator(u, p::GeodesicParams, λ)
-    x = @inbounds @view(u[1:4])
-    v = @inbounds @view(u[5:8])
-    SVector(v..., geodesic_eq(x, v, p.metric)...)
+function rayintegrator(v, u, p::GeodesicParams, λ)
+    SVector(geodesic_eq(u, v, p.metric)...)
 end
 
 """
@@ -115,12 +113,12 @@ this method, see [`BHSetup`](@ref) and [`IntegratorConfig`](@ref).
 function integrategeodesic(s::BHSetup, cf::IntegratorConfig; storage = nothing)
     p = GeodesicParams(cf.α, cf.β, s, storage)
 
-    x = (0.0, s.r₀, s.θ₀, s.ϕ₀)
-    v = (0.0, -1.0, p.θv₀, p.ϕv₀)
+    u0 = SVector(0.0, s.r₀, s.θ₀, s.ϕ₀)
+    v_temp = (0.0, -1.0, p.θv₀, p.ϕv₀)
 
-    u0 = SVector(x..., null_constrain(x, v, s.metric), -1.0, p.θv₀, p.ϕv₀)
+    v0 = SVector(null_constrain(u0, v_temp, s.metric), -1.0, p.θv₀, p.ϕv₀)
 
-    integrate(u0, (s.λlow, s.λhigh), p, cf)
+    integrate(u0, v0, (s.λlow, s.λhigh), p, cf)
 end
 function integrategeodesic(
     s::BHSetup{CarterBoyerLindquist{T}},
@@ -140,7 +138,11 @@ end
     prob = ODEProblem{false}(rayintegrator, x, time_domain, p)
     solvegeodesic(prob, cf)
 end
-@inline function integrate(x::AbstractVector, time_domain, p, cf::IntegratorConfig)
+@inline function integrate(x::StaticVector, v::StaticVector, time_domain, p::GeodesicParams, cf::IntegratorConfig)
+    prob = SecondOrderODEProblem{false}(rayintegrator, v, x, time_domain, p)
+    solvegeodesic(prob, cf)
+end
+#= @inline function integrate(x::AbstractVector, time_domain, p, cf::IntegratorConfig)
     prob = ODEProblem{true}(rayintegrator!, x, time_domain, p)
     solvegeodesic(prob, cf)
 end
@@ -153,7 +155,7 @@ end
     x = Float32[x...]
     prob = ODEProblem{true}(rayintegrator!, x, time_domain, [changetype(Float32, p)])
     solvegeodesic(prob, cf)
-end
+end =#
 
 solvegeodesic(::Any, ::ParallelParams{E,Nothing}) where {E} =
     error("`probfunc` in ParallelParams must be defined.")
@@ -168,7 +170,8 @@ function solvegeodesic(prob, cf::ParallelParams{E,P,F}) where {E,P,F}
         abstol = cf.abstol,
         reltol = cf.reltol,
         save_on = cf.save_geodesics,
-        callback = cf.callback
+        callback = cf.callback,
+        #dtmax=1.0
     )
 end
 function solvegeodesic(prob, cf::IntegratorConfig{F}) where {F}

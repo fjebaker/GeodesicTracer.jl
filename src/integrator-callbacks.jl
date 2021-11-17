@@ -7,7 +7,7 @@ where our effective infinity is hardcoded as `1200.0`.
 @inline function chartbounds(u, λ, integrator)
     p = integrator.p
 
-    on_chart = p.chart_inner_radius < u[2] < 1200.0
+    on_chart = p.chart_inner_radius < u[6] < 1200.0
     !on_chart
 end
 
