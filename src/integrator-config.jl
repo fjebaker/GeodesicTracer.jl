@@ -15,8 +15,8 @@ $(FIELDS)
 @with_kw struct SingleParams{F} <: IntegratorConfig{F}
     @deftype Float64
     maxiters = 1e4
-    reltol = 1e-15
-    abstol = 1e-15
+    reltol = 1e-9
+    abstol = 1e-9
     α = 0.0
     β = 0.0
 
@@ -46,8 +46,8 @@ $(FIELDS)
 @with_kw struct ParallelParams{E,P,F} <: IntegratorConfig{F}
     @deftype Float64
     maxiters = 1e4
-    reltol = 1e-15
-    abstol = 1e-15
+    reltol = 1e-9
+    abstol = 1e-9
     α = 0.0
     β = 0.0
 
