@@ -71,11 +71,9 @@ end
 function wrapcallback(s::BHSetup{CarterBoyerLindquist{T}}, disk) where {T}
     chart_callback =
         isnothing(disk) ? (u, λ, integrator) -> begin 
-            signflip(u, λ, integrator)
             chartbounds(u[2], integrator.p)
         end :
         (u, λ, integrator) -> begin
-            signflip(u, λ, integrator)
             chartbounds(u[2], integrator.p) || intersect!(integrator, u, disk)
         end
     CallbackSet(
