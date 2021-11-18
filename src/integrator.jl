@@ -24,8 +24,17 @@ These are calculated by [`δ`](@ref).
 
 This function can be dispatched over `p` if needed.
 """
-function rayintegrator(v, u, p::GeodesicParams, λ)
+function secondorder_rayintegrator(v, u, p::GeodesicParams, λ)
     SVector(geodesic_eq(u, v, p.metric)...)
+end
+
+"""
+    $(TYPEDSIGNATURES)
+
+Inplace variant of [`secondorder_rayintegrator`](@ref).
+"""
+function secondorder_rayintegrator!(dv, v, u, p::GeodesicParams, λ)
+    dv .= geodesic_eq(u, v, p.metric)
 end
 
 """
@@ -55,10 +64,10 @@ geodesic intersects the disk.
 function calcgeodesic(
     α::AbstractFloat,
     β::AbstractFloat,
-    s::BHSetup;
+    s::BHSetup{T};
     save_geodesics = true,
     disk = nothing
-)
+) where {T}
     # single geodesic method
     integrategeodesic(
         s,
@@ -83,10 +92,10 @@ function calcgeodesic(
     α_range::Tuple{Float64,Float64},
     num,
     β::AbstractFloat,
-    s::BHSetup;
+    s::BHSetup{T};
     save_geodesics = true,
     disk = nothing
-)
+) where {T}
     
     integrategeodesic(
         s,
@@ -113,12 +122,12 @@ this method, see [`BHSetup`](@ref) and [`IntegratorConfig`](@ref).
 function integrategeodesic(s::BHSetup, cf::IntegratorConfig; storage = nothing)
     p = GeodesicParams(cf.α, cf.β, s, storage)
 
-    u0 = SVector(0.0, s.r₀, s.θ₀, s.ϕ₀)
+    x = SVector(0.0, s.r₀, s.θ₀, s.ϕ₀)
     v_temp = (0.0, -1.0, p.θv₀, p.ϕv₀)
 
-    v0 = SVector(null_constrain(u0, v_temp, s.metric), -1.0, p.θv₀, p.ϕv₀)
+    v = SVector(null_constrain(x, v_temp, s.metric), -1.0, p.θv₀, p.ϕv₀)
 
-    integrate(u0, v0, (s.λlow, s.λhigh), p, cf)
+    integrate(v, x, (s.λlow, s.λhigh), p, cf)
 end
 function integrategeodesic(
     s::BHSetup{CarterBoyerLindquist{T}},
@@ -142,7 +151,7 @@ end
     prob = SecondOrderODEProblem{false}(rayintegrator, v, x, time_domain, p)
     solvegeodesic(prob, cf)
 end
-#= @inline function integrate(x::AbstractVector, time_domain, p, cf::IntegratorConfig)
+@inline function integrate(x::AbstractVector, time_domain, p, cf::IntegratorConfig)
     prob = ODEProblem{true}(rayintegrator!, x, time_domain, p)
     solvegeodesic(prob, cf)
 end
@@ -155,7 +164,28 @@ end
     x = Float32[x...]
     prob = ODEProblem{true}(rayintegrator!, x, time_domain, [changetype(Float32, p)])
     solvegeodesic(prob, cf)
-end =#
+end
+# second order variants -- TODO: use metaprogramming to generate these?
+@inline function integrate(v::StaticVector, x::StaticVector, time_domain, p, cf::IntegratorConfig)
+    prob = SecondOrderODEProblem{false}(secondorder_rayintegrator, v, x, time_domain, p)
+    solvegeodesic(prob, cf)
+end
+@inline function integrate(v::StaticVector, x::AbstractVector, time_domain, p, cf::IntegratorConfig)
+    prob = SecondOrderODEProblem{true}(secondorder_rayintegrator!, v, x, time_domain, p)
+    solvegeodesic(prob, cf)
+end
+@inline function integrate(
+    v::StaticVector, 
+    x::AbstractVector,
+    time_domain,
+    p,
+    cf::IntegratorConfig{EnsembleGPUArray}
+)   
+    v_float32 = Float32[v...]
+    x_float32 = Float32[x...]
+    prob = SecondOrderODEProblem{true}(secondorder_rayintegrator!, v_float32, x_float32, time_domain, [changetype(Float32, p)])
+    solvegeodesic(prob, cf)
+end
 
 solvegeodesic(::Any, ::ParallelParams{E,Nothing}) where {E} =
     error("`probfunc` in ParallelParams must be defined.")
