@@ -173,6 +173,8 @@ function reg_pdotu_inv(L, M, r, a, θ)
     (eⱽ(M, r, a, θ) * √(1 - Vₑ(M, r, a, θ)^2)) / (1 - L * Ωₑ(M, r, a))
 end
 
+reg_pdotu_inv(u, p::CarterGeodesicParams) = reg_pdotu_inv(p.L, p.metric.M, u[2], p.metric.a, u[3])
+
 """
     $(TYPEDSIGNATURES)
 
