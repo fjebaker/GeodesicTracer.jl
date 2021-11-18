@@ -1,4 +1,5 @@
 using LinearAlgebra
+using RecursiveArrayTools
 
 """
     $(TYPEDEF)
@@ -57,7 +58,7 @@ function GeodesicParams(α, β, s::BHSetup{M}, storage) where {M}
         ϕv₀ = -α / gϕϕ(s.r₀, s.θ₀, s.metric.M, s.metric.a),
         θv₀ = -β / gθθ(s.r₀, s.θ₀, s.metric.M, s.metric.a),
         # scale inner chart, since otherwise infinite affine parameter as approaching event horizon
-        chart_inner_radius = 1.01 * R₀(s.metric.M, s.metric.a),
+        chart_inner_radius = 1.06 * R₀(s.metric.M, s.metric.a),
         storage = storage
     )
 end
@@ -66,21 +67,21 @@ end
 """
     $(TYPEDSIGNATURES)
 """
-function makeprobfunc(s, α_range, β, num)
+function makeprobfunc(s::BHSetup, α_range, β, num)
     α = α_range[1]
     δα = (α_range[2] - α) / num
     metric = s.metric
     
     (prob, i, repeat) -> begin
         p = prob.p
-        x = @view(prob.u0[1:4])
+        x = prob.u0.x[2]
         
         p = @set(p.ϕv₀ = -(α + i*δα) / gϕϕ(x[2], x[3], metric.M, metric.a))
 
-        r0 = -1.0
-        v = (0.0, r0, p.θv₀, p.ϕv₀)
-        vtemp = SVector(null_constrain(x, v, metric), r0, p.θv₀, p.ϕv₀)
-        
-        remake(prob, p = p, du0 = vtemp)
+        # calculate new velocity vector
+        vtemp = (0.0, -1.0, p.θv₀, p.ϕv₀)
+        v = SVector(null_constrain(x, vtemp, metric), -1.0, p.θv₀, p.ϕv₀)
+
+        remake(prob, p = p, u0 = ArrayPartition(v, x))
     end
 end
