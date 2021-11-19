@@ -66,7 +66,8 @@ function calcgeodesic(
     β::AbstractFloat,
     s::BHSetup{T};
     save_geodesics = true,
-    disk = nothing
+    disk = nothing, 
+    solver = Tsit5()
 ) where {T}
     # single geodesic method
     integrategeodesic(
@@ -75,7 +76,8 @@ function calcgeodesic(
             α = α,
             β = β,
             save_geodesics = save_geodesics,
-            callback = wrapcallback(s, disk)
+            callback = wrapcallback(s, disk),
+            solver = solver
         ),
         storage = isnothing(disk) ? nothing : 0.0
     )
@@ -94,7 +96,8 @@ function calcgeodesic(
     β::AbstractFloat,
     s::BHSetup{T};
     save_geodesics = true,
-    disk = nothing
+    disk = nothing,
+    solver = Tsit5()
 ) where {T}
     
     integrategeodesic(
@@ -107,7 +110,8 @@ function calcgeodesic(
             save_geodesics = save_geodesics,
             ensemble = EnsembleThreads(),
             probfunc = makeprobfunc(s, α_range, β, num),
-            callback = wrapcallback(s, disk)
+            callback = wrapcallback(s, disk),
+            solver = solver
         ),
         storage = isnothing(disk) ? nothing : 0.0
     )
@@ -185,10 +189,10 @@ end
 
 solvegeodesic(::Any, ::ParallelParams{E,Nothing}) where {E} =
     error("`probfunc` in ParallelParams must be defined.")
-function solvegeodesic(prob, cf::ParallelParams{E,P,F}) where {E,P,F}
+function solvegeodesic(prob, cf::ParallelParams{E,P,F,S}) where {E,P,F,S}
     solve(
         EnsembleProblem(prob, prob_func = cf.probfunc, safetycopy = false),
-        Tsit5(),
+        cf.solver,
         cf.ensemble;
         trajectories = cf.trajectories,
         verbose = cf.verbose,
@@ -199,10 +203,10 @@ function solvegeodesic(prob, cf::ParallelParams{E,P,F}) where {E,P,F}
         callback = cf.callback,
     )
 end
-function solvegeodesic(prob, cf::IntegratorConfig{F}) where {F}
+function solvegeodesic(prob, cf::IntegratorConfig{F,S}) where {F,S}
     solve(
         prob,
-        Tsit5(),
+        cf.solver,
         ;
         verbose = cf.verbose,
         maxiters = cf.maxiters,

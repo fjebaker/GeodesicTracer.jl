@@ -1,7 +1,7 @@
 """
     $(TYPEDEF)
 """
-abstract type IntegratorConfig{F} end
+abstract type IntegratorConfig{F,S} end
 
 """
     $(TYPEDEF)
@@ -12,7 +12,7 @@ Used to store the configuration for the solve algorithm when calculating a singl
 
 $(FIELDS)
 """
-@with_kw struct SingleParams{F} <: IntegratorConfig{F}
+@with_kw struct SingleParams{F,S} <: IntegratorConfig{F,S}
     @deftype Float64
     maxiters = 1e4
     reltol = 1e-9
@@ -24,6 +24,7 @@ $(FIELDS)
     verbose::Bool = false
 
     callback::F = nothing
+    solver::S = Tsit5()
 end
 
 
@@ -43,7 +44,7 @@ Commonly used:
 
 $(FIELDS)
 """
-@with_kw struct ParallelParams{E,P,F} <: IntegratorConfig{F}
+@with_kw struct ParallelParams{E,P,F,S} <: IntegratorConfig{F,S}
     @deftype Float64
     maxiters = 1e4
     reltol = 1e-9
@@ -60,6 +61,7 @@ $(FIELDS)
     ensemble::E = nothing
     probfunc::P = nothing
     callback::F = nothing
+    solver::S = Tsit5()
 end
 
 export SingleParams, ParallelParams
