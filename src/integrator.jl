@@ -147,10 +147,6 @@ end
     prob = ODEProblem{false}(rayintegrator, x, time_domain, p)
     solvegeodesic(prob, cf)
 end
-@inline function integrate(x::StaticVector, v::StaticVector, time_domain, p::GeodesicParams, cf::IntegratorConfig)
-    prob = SecondOrderODEProblem{false}(rayintegrator, v, x, time_domain, p)
-    solvegeodesic(prob, cf)
-end
 @inline function integrate(x::AbstractVector, time_domain, p, cf::IntegratorConfig)
     prob = ODEProblem{true}(rayintegrator!, x, time_domain, p)
     solvegeodesic(prob, cf)
@@ -166,16 +162,16 @@ end
     solvegeodesic(prob, cf)
 end
 # second order variants -- TODO: use metaprogramming to generate these?
-@inline function integrate(v::StaticVector, x::StaticVector, time_domain, p, cf::IntegratorConfig)
+@inline function integrate(x::StaticVector, v::StaticVector, time_domain, p::GeodesicParams, cf::IntegratorConfig)
     prob = SecondOrderODEProblem{false}(secondorder_rayintegrator, v, x, time_domain, p)
     solvegeodesic(prob, cf)
 end
-@inline function integrate(v::StaticVector, x::AbstractVector, time_domain, p, cf::IntegratorConfig)
+@inline function integrate(x::AbstractVector, v::AbstractVector, time_domain, p::GeodesicParams, cf::IntegratorConfig)
     prob = SecondOrderODEProblem{true}(secondorder_rayintegrator!, v, x, time_domain, p)
     solvegeodesic(prob, cf)
 end
 @inline function integrate(
-    v::StaticVector, 
+    v::AbstractVector, 
     x::AbstractVector,
     time_domain,
     p,
@@ -201,7 +197,6 @@ function solvegeodesic(prob, cf::ParallelParams{E,P,F}) where {E,P,F}
         reltol = cf.reltol,
         save_on = cf.save_geodesics,
         callback = cf.callback,
-        #dtmax=1.0
     )
 end
 function solvegeodesic(prob, cf::IntegratorConfig{F}) where {F}
