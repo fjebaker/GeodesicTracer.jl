@@ -45,7 +45,6 @@ end
     integrator.p = flip_θsign(integrator.t, integrator.p)
 end
 
-
 """
     $(TYPEDSIGNATURES)
 
@@ -59,13 +58,7 @@ function wrapcallback(s::BHSetup, disk)
             # indexing for 2nd order ODE problem has velocity in 1:4, position 5:8
             chartbounds(u[6], integrator.p) || intersect!(integrator, @view(u[5:8]), disk)
         end
-    #CallbackSet(
     DiscreteCallback(cb, terminate!)
-    #DiscreteCallback(
-    #    (u, λ, integrator) -> u[6] < 5 * integrator.p.chart_inner_radius,
-    #    adjust_time_step
-    #    )
-    #)
 end
 
 function wrapcallback(s::BHSetup{CarterBoyerLindquist{T}}, disk) where {T}
