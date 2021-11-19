@@ -74,7 +74,7 @@ function makeprobfunc(s::BHSetup, α_range, β, num)
     
     (prob, i, repeat) -> begin
         p = prob.p
-        x = prob.u0.x[2]
+        x = prob.u0.x[1]
         
         p = @set(p.ϕv₀ = -(α + i*δα) / gϕϕ(x[2], x[3], metric.M, metric.a))
 
