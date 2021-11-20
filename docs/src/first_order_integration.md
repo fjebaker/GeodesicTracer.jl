@@ -1,4 +1,8 @@
-# Integration
+# First order integration
+
+
+## Carter's linearized solutions in Boyer-Lindquist coordinates
+
 
 All of the integration problems are solved using [DifferentialEquations.jl](https://diffeq.sciml.ai/stable/).
 
