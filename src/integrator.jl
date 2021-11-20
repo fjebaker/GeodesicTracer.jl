@@ -24,9 +24,10 @@ These are calculated by [`δ`](@ref).
 
 This function can be dispatched over `p` if needed.
 """
-function secondorder_rayintegrator(v, u, p::GeodesicParams, λ)
+function secondorder_rayintegrator(v::StaticVector, u::StaticVector, p::GeodesicParams, λ)
     SVector(geodesic_eq(u, v, p.metric)...)
 end
+
 
 """
     $(TYPEDSIGNATURES)
@@ -97,7 +98,8 @@ function calcgeodesic(
     s::BHSetup{T};
     save_geodesics = true,
     disk = nothing,
-    solver = Tsit5()
+    solver = Tsit5(),
+    ensemble = EnsembleThreads()
 ) where {T}
 
     integrategeodesic(
@@ -108,7 +110,7 @@ function calcgeodesic(
             α = α_range[1],
             α_end = α_range[2],
             save_geodesics = save_geodesics,
-            ensemble = EnsembleThreads(),
+            ensemble = ensemble,
             probfunc = makeprobfunc(s, α_range, β, num),
             callback = wrapcallback(s, disk),
             solver = solver
@@ -151,12 +153,12 @@ end
     prob = ODEProblem{false}(rayintegrator, x, time_domain, p)
     solvegeodesic(prob, cf)
 end
-@inline function integrate(x::AbstractVector, time_domain, p, cf::IntegratorConfig)
+@inline function integrate(x, time_domain, p, cf::IntegratorConfig)
     prob = ODEProblem{true}(rayintegrator!, x, time_domain, p)
     solvegeodesic(prob, cf)
 end
 @inline function integrate(
-    x::AbstractVector,
+    x,
     time_domain,
     p,
     cf::IntegratorConfig{EnsembleGPUArray}
@@ -177,8 +179,8 @@ end
     solvegeodesic(prob, cf)
 end
 @inline function integrate(
-    x::AbstractVector,
-    v::AbstractVector,
+    x,
+    v,
     time_domain,
     p::GeodesicParams,
     cf::IntegratorConfig
@@ -187,8 +189,8 @@ end
     solvegeodesic(prob, cf)
 end
 @inline function integrate(
-    v::AbstractVector,
-    x::AbstractVector,
+    v,
+    x,
     time_domain,
     p,
     cf::IntegratorConfig{EnsembleGPUArray}
