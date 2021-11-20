@@ -63,7 +63,7 @@ end
 
 function wrapcallback(s::BHSetup{CarterBoyerLindquist{T}}, disk) where {T}
     chart_callback =
-        isnothing(disk) ? (u, λ, integrator) -> begin 
+        isnothing(disk) ? (u, λ, integrator) -> begin
             chartbounds(u[2], integrator.p)
         end :
         (u, λ, integrator) -> begin

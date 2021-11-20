@@ -66,7 +66,7 @@ function calcgeodesic(
     β::AbstractFloat,
     s::BHSetup{T};
     save_geodesics = true,
-    disk = nothing, 
+    disk = nothing,
     solver = Tsit5()
 ) where {T}
     # single geodesic method
@@ -99,7 +99,7 @@ function calcgeodesic(
     disk = nothing,
     solver = Tsit5()
 ) where {T}
-    
+
     integrategeodesic(
         s,
         ParallelParams(
@@ -166,24 +166,42 @@ end
     solvegeodesic(prob, cf)
 end
 # second order variants -- TODO: use metaprogramming to generate these?
-@inline function integrate(x::StaticVector, v::StaticVector, time_domain, p::GeodesicParams, cf::IntegratorConfig)
+@inline function integrate(
+    x::StaticVector,
+    v::StaticVector,
+    time_domain,
+    p::GeodesicParams,
+    cf::IntegratorConfig
+)
     prob = SecondOrderODEProblem{false}(secondorder_rayintegrator, v, x, time_domain, p)
     solvegeodesic(prob, cf)
 end
-@inline function integrate(x::AbstractVector, v::AbstractVector, time_domain, p::GeodesicParams, cf::IntegratorConfig)
+@inline function integrate(
+    x::AbstractVector,
+    v::AbstractVector,
+    time_domain,
+    p::GeodesicParams,
+    cf::IntegratorConfig
+)
     prob = SecondOrderODEProblem{true}(secondorder_rayintegrator!, v, x, time_domain, p)
     solvegeodesic(prob, cf)
 end
 @inline function integrate(
-    v::AbstractVector, 
+    v::AbstractVector,
     x::AbstractVector,
     time_domain,
     p,
     cf::IntegratorConfig{EnsembleGPUArray}
-)   
+)
     v_float32 = Float32[v...]
     x_float32 = Float32[x...]
-    prob = SecondOrderODEProblem{true}(secondorder_rayintegrator!, v_float32, x_float32, time_domain, [changetype(Float32, p)])
+    prob = SecondOrderODEProblem{true}(
+        secondorder_rayintegrator!,
+        v_float32,
+        x_float32,
+        time_domain,
+        [changetype(Float32, p)]
+    )
     solvegeodesic(prob, cf)
 end
 
@@ -200,7 +218,7 @@ function solvegeodesic(prob, cf::ParallelParams{E,P,F,S}) where {E,P,F,S}
         abstol = cf.abstol,
         reltol = cf.reltol,
         save_on = cf.save_geodesics,
-        callback = cf.callback,
+        callback = cf.callback
     )
 end
 function solvegeodesic(prob, cf::IntegratorConfig{F,S}) where {F,S}

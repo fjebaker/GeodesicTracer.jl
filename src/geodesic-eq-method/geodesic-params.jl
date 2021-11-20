@@ -57,12 +57,12 @@ function makeprobfunc(s::BHSetup, α_range, β, num)
     α = α_range[1]
     δα = (α_range[2] - α) / num
     metric = s.metric
-    
+
     (prob, i, repeat) -> begin
         p = prob.p
         x = prob.u0.x[1]
-        
-        p = @set(p.ϕv₀ = -(α + i*δα) / x[2]^2)
+
+        p = @set(p.ϕv₀ = -(α + i * δα) / x[2]^2)
 
         # calculate new velocity vector
         vtemp = (0.0, -1.0, p.θv₀, p.ϕv₀)
