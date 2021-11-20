@@ -42,4 +42,11 @@ where ``f`` is the field of view factor.
     fov_factor = 3.0    # field of view factor
 end
 
-export BHSetup
+function rescale!(s::BHSetup{T}, scale::Int) where {T}
+    s.img_width = s.img_width * scale
+    s.img_height = s.img_height * scale
+    s.fov_factor = s.fov_factor * scale
+    s
+end
+
+export BHSetup, rescale!

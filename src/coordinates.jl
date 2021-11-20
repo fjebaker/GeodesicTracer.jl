@@ -77,11 +77,14 @@ r_\\text{ms} = M \\left\\{ 3 + Z_2 \\pm \\sqrt{(3 - Z_1)(3 + Z_1 + 2 Z_2)} \\rig
 Depending on whether the [`AbstractSpinDirection`](@ref) is `ContraRotating` or 
 `CoRotating`, changes the sign in the equation above.
 """
-@inline rms(M, a; ± = +) =
+@inline function rms(M, a, ±)
     M * (3 + Z₂(M, a) ± √((3 - Z₁(M, a)) * (3 + Z₁(M, a) + 2 * Z₂(M, a))))
+end
+@inline function rms(M, a) 
+    a > 0.0 ? rms(M, a, -) : rms(M, a, +)
+end 
 @inline function rms(s::BHSetup)
-    metric = s.metric
-    metric.a < 0.0 ? rms(metric.M, metric.a) : rms(metric.M, metric.a; ± = -)
+    rms(s.metric.M, s.metric.a)
 end
 
 """
