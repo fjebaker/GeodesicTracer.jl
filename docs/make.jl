@@ -10,10 +10,18 @@ makedocs(
 
     pages = [
         "Home" => "index.md",
-        "Coordinates" => "coordinates.md",
-        "Integration" => "integration.md",
-        "Redshift" => "redshift.md",
-        "Rendering" => "rendering.md"
+        "Overview" => "overview.md",
+        "Setup Configuration" => "bh_setup.md"
+        "Spacetimes & Coordinates" => "coordinates.md",
+        "Integration" => [
+            "1st Order" => "first_order_integration.md",
+            "2nd Order" => "second_order_integration.md"
+        ],
+        "Rendering" => "rendering.md",
+        "Value Functions" => [
+            "Generic" => "value_functions.md",
+            "Redshift" => "redshift.md"
+        ],
     ]
 )
 
