@@ -16,7 +16,7 @@ There is also a special `AbstractVector` type provided.
 FourVector
 ```
 
-Note that this is only ever really used for generating function specializations with [`@vec_eq`](@ref), and does not actually get explicitly invoked anymore, since benchmarking tests with `StaticArrays.jl` proved percentage points faster.
+Note that this is only ever really used for generating function specializations, and does not actually get explicitly invoked anymore, since benchmarking tests with `StaticArrays.jl` proved percentage points faster.
 
 It is still a convenient representation of arbitrary four vectors, however, and will be left in for future use.
 

@@ -32,7 +32,7 @@ end
 # a few commonly used value functions
 
 const redshift = ValueFunction(
-    (val, λ, u, p::GeodesicParams, d) -> begin
+    (val, λ, u, p, d) -> begin
         @inbounds if u[2] > p.rms
             return reg_pdotu_inv(u, p)
         else
@@ -41,7 +41,7 @@ const redshift = ValueFunction(
     end
 )
 
-const geometry = ValueFunction((val, λ, u, p::GeodesicParams, d) -> 1.0)
+const geometry = ValueFunction((val, λ, u, p, d) -> 1.0)
 
 
 export ValueFunction, geometry, redshift

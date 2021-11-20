@@ -4,12 +4,6 @@
 CurrentModule = GeodesicTracer
 ```
 
-All of the following methods use the macro:
-
-```@docs
-@vec_eq
-```
-
 ## Coordinate functions
 
 The Kerr metric in the Boyer-Lindquist coordinates is written
