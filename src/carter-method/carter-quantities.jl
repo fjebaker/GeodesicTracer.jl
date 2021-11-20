@@ -1,7 +1,5 @@
 """
     $(TYPEDSIGNATURES)
-    $(FUNCTIONNAME)(x::FourVector, p::GeodesicParams)
-    $(FUNCTIONNAME)(x::AbstractVector, p::GeodesicParams)
 
 From Bardeen et al. (1972) eq. (2.10):
 
@@ -14,8 +12,6 @@ T = E \\left( r^2 + a^2 \\right) - L * a.
 
 """
     $(TYPEDSIGNATURES)
-    $(FUNCTIONNAME)(x::FourVector, p::GeodesicParams)
-    $(FUNCTIONNAME)(x::AbstractVector, p::GeodesicParams)
 
 From Bardeen et al. (1972) eq. (2.10), for the special case of a null-geodesic ``\\mu = 0``:
 
@@ -28,8 +24,6 @@ V_r = T^2 - \\Delta \\left[ (L - a E)^2 + Q \\right]
 
 """
     $(TYPEDSIGNATURES)
-    $(FUNCTIONNAME)(x::FourVector, p::GeodesicParams)
-    $(FUNCTIONNAME)(x::AbstractVector, p::GeodesicParams)
 
 From Bardeen et al. (1972) eq. (2.10), for the special case of a null-geodesic ``\\mu = 0``:
 
@@ -43,8 +37,6 @@ V_\\theta =
 
 """
     $(TYPEDSIGNATURES)
-    $(FUNCTIONNAME)(x::FourVector, p::GeodesicParams)
-    $(FUNCTIONNAME)(x::AbstractVector, p::GeodesicParams)
 
 The ``t`` compontent of the equation of motion for a photon around a black hole, multiplied 
 by ``\\Sigma``.
@@ -64,8 +56,6 @@ end
 
 """
     $(TYPEDSIGNATURES)
-    $(FUNCTIONNAME)(x::FourVector, p::GeodesicParams)
-    $(FUNCTIONNAME)(x::AbstractVector, p::GeodesicParams)
 
 The ``r`` compontent of the equation of motion for a photon around a black hole, multiplied 
 by ``\\Sigma``.
@@ -88,8 +78,6 @@ end
 
 """
     $(TYPEDSIGNATURES)
-    $(FUNCTIONNAME)(x::FourVector, p::GeodesicParams)
-    $(FUNCTIONNAME)(x::AbstractVector, p::GeodesicParams)
 
 The ``\\theta`` compontent of the equation of motion for a photon around a black hole, 
 multiplied by ``\\Sigma``.
@@ -112,8 +100,6 @@ end
 
 """
     $(TYPEDSIGNATURES)
-    $(FUNCTIONNAME)(x::FourVector, p::GeodesicParams)
-    $(FUNCTIONNAME)(x::AbstractVector, p::GeodesicParams)
 
 The ``\\phi`` compontent of the equation of motion for a photon around a black hole, 
 multiplied by ``\\Sigma``.
@@ -134,13 +120,11 @@ end
 """
     $(TYPEDSIGNATURES)
 
-Derivative of `x`, a [`FourVector`](@ref), with respect to ``\\lambda``, for the Kerr 
-spacetime around a black hole described by `p`, of type [`GeodesicParams`](@ref).
+Derivative of `x` with respect to ``\\lambda``, for the Kerr 
+spacetime around a black hole described by `p`, of type [`CarterGeodesicParams`](@ref).
 
 The parameter `signs` is a mutable structure with two components, where the first is the 
 sign of ``V_r``, and the second ``V_\\theta``.
-
-Returns a [`FourVector`](@ref) with components
 
 ```math
 \\left(
@@ -191,7 +175,7 @@ function rayintegrator(u, p::CarterGeodesicParams, λ)
 end
 
 """
-Carter method specialsation.
+In place specialisation of the Carter method.
 """
 function rayintegrator!(du, u, p::CarterGeodesicParams, λ)
     δ!(du, u, p)

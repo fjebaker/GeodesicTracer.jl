@@ -72,6 +72,9 @@ function newparams(p::CarterGeodesicParams, θ, r, α, β, δα)::CarterGeodesic
 end
 
 
+"""
+Carter method specialisation.
+"""
 function makeprobfunc(s::BHSetup{CarterBoyerLindquist{T}}, α_range, β, num) where {T}
     α = α_range[1]
     δα = (α_range[2] - α) / num

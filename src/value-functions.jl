@@ -27,7 +27,7 @@ end
 
 @inline function Base.:∘(vf1::ValueFunction, vf2::ValueFunction)
     ValueFunction(
-        (val, last_λ, last_u, p::GeodesicParams, d) ->
+        (val, last_λ, last_u, p, d) ->
             vf1.func(vf2.func(val, last_λ, last_u, p, d), last_λ, last_u, p, d)
     )
 end

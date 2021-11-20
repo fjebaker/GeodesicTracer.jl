@@ -1,3 +1,11 @@
+
+"""
+    $(TYPEDEF)
+
+# Fields
+
+$(FIELDS)
+"""
 @with_kw struct CarterBoyerLindquist{T}
     @deftype T
     "Photon Energy."
