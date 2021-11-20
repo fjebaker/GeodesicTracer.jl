@@ -3,24 +3,27 @@ struct ValueFunction{F}
     func::F
 end
 
-@inline function (vf::ValueFunction)(sol, s::BHSetup, d::AccretionDisk)::Float64
-    last_λ = sol.t[end]
-    last_u = sol.u[end]
-    p = sol.prob.p
+@inline function (vf::ValueFunction)(last_λ, last_u, p, s, d::AccretionDisk)::Float64
     @inbounds if last_λ < s.λhigh && d.r_inner < last_u[2] < d.r_outer
         return vf.func(0.0, last_λ, last_u, p, d)
     end
     0.0
 end
 
-# no disk specialisation
-@inline function (vf::ValueFunction)(sol, s::BHSetup, d::Nothing)::Float64
-    last_λ = sol.t[end]
-    last_u = sol.u[end]
-    p = sol.prob.p
-    vf.func(0.0, last_λ, last_u, p, d)
+@inline function (vf::ValueFunction)(sol, s::BHSetup{CarterBoyerLindquist{T}}, d::AccretionDisk)::Float64 where {T}
+    @inbounds vf(sol.t[end], sol.u[end], sol.prob.p, s, d)
+end
+@inline function (vf::ValueFunction)(sol, s, d::AccretionDisk)::Float64
+    @inbounds vf(sol.t[end], sol.u[end].x[2], sol.prob.p, s, d)
 end
 
+# no disk specialisations
+@inline function (vf::ValueFunction)(sol, s::BHSetup{CarterBoyerLindquist{T}}, d::Nothing)::Float64 where {T}
+    vf.func(0.0, sol.t[end], sol.u[end], sol.prob.p, d)
+end
+@inline function (vf::ValueFunction)(sol, s, d::Nothing)::Float64
+    vf.func(0.0, sol.t[end], sol.u[end].x[1], sol.prob.p, d)
+end
 
 @inline function Base.:∘(vf1::ValueFunction, vf2::ValueFunction)
     ValueFunction(
@@ -31,17 +34,20 @@ end
 
 # a few commonly used value functions
 
-const redshift = ValueFunction(
-    (val, λ, u, p, d) -> begin
-        @inbounds if u[2] > p.rms
-            return reg_pdotu_inv(u, p)
-        else
-            return plg_pdotu_inv(u, p, last_t < p.λr_change ? -1 : 1)
-        end
+@inline function redshift_function(val, λ, u, p::CarterGeodesicParams, d)
+    # this function needs a specialsation for GeodesicParams
+    # since at the moment reg_pdotu_inv and plg_pdotu_inv are Carter specific
+    @inbounds if u[2] > rms(p.metric.M, p.metric.a)
+        return reg_pdotu_inv(u, p)
+    else
+        return plg_pdotu_inv(u, p, λ < p.λr_change ? -1 : 1)
     end
+end
+
+const redshift = ValueFunction(
+    redshift_function
 )
 
 const geometry = ValueFunction((val, λ, u, p, d) -> 1.0)
-
 
 export ValueFunction, geometry, redshift
