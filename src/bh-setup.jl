@@ -6,6 +6,17 @@ field types are Float64, unless otherwise specified:
 
 $(FIELDS)
 
+The `metric` field changes the integration algorithm used.
+
+For first order methods:
+
+- [`CarterBoyerLindquist`](@ref), uniquely implemented to track sign changes.
+
+For second order methods, metrics from [`ComputedGeodesicEquations.jl`](https://github.com/astro-group-bristol/ComputedGeodesicEquations.jl):
+
+- `BoyerLindquist`
+- `EddingtonFinkelstein` (*not fully implemented*)
+
 The field of view factor relates as to how the image pixels at ``x`` and ``y`` 
 from the center of the image are mapped into impact parameters ``\\alpha`` and ``\\beta``, 
 via
@@ -42,6 +53,11 @@ where ``f`` is the field of view factor.
     fov_factor = 3.0    # field of view factor
 end
 
+"""
+    $(TYPEDSIGNATURES)
+
+Rescale `img_width`, `img_height` and `fov_factor` of a [`BHSetup`](@ref) by a constant `scale`.
+"""
 function rescale!(s::BHSetup{T}, scale::Int) where {T}
     s.img_width = s.img_width * scale
     s.img_height = s.img_height * scale
