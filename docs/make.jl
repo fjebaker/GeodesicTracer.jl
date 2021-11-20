@@ -11,8 +11,7 @@ makedocs(
     pages = [
         "Home" => "index.md",
         "Overview" => "overview.md",
-        "Setup Configuration" => "bh_setup.md"
-        "Spacetimes & Coordinates" => "coordinates.md",
+        "Setup & Configuration" => "bh_setup.md",
         "Integration" => [
             "1st Order" => "first_order_integration.md",
             "2nd Order" => "second_order_integration.md"
