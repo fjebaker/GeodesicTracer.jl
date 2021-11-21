@@ -63,16 +63,10 @@ Return a new [`CarterGeodesicParams`](@ref) with the `θ_sign` parameter sign fl
 """
 flip_θsign(λ, p::CarterGeodesicParams) = @set(@set(p.θ_sign = -p.θ_sign).λθ_change = λ)
 
+
 """
     $(TYPEDSIGNATURES)
-"""
-function newparams(p::CarterGeodesicParams, θ, r, α, β, δα)::CarterGeodesicParams
-    l, q = LQ(p.metric.M, r, p.metric.a, θ, α + δα, β)
-    @set(@set(p.L = l).Q = q)
-end
-
-
-"""
+    
 Carter method specialisation.
 """
 function makeprobfunc(s::BHSetup{CarterBoyerLindquist{T}}, α_range, β, num) where {T}
