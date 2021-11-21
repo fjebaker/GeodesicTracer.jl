@@ -4,6 +4,12 @@
 CurrentModule = GeodesicTracer
 ```
 
+First order geodesic methods rely on being able to solve an ODE system separably, which requires linearising the geodesic equation such as via the Hamilton-Jacobi method. This is often non-trivial, and introduces new manifolds and embeddings that require the integration method to do something extra, such as keeping track of additional changing quantities.
+
+As a consequence, the first order methods require special treatment from the integrator perspective, and tailored methods specific to a particular solution.
+
+Below are the currently implemented solutions in this library (which is currently only one).
+
 ## Carter's linearized solutions in Boyer-Lindquist coordinates
 
 Carter (1968) derived a fourth constant of motion from the Boyer-Lindquist coordinates describing the Kerr spacetime, which allowed the 2nd order geodesic equations to be linearized[^1].
@@ -33,11 +39,12 @@ with:
 ```
 
 The metric structure allowing these to be changed is
+
 ```@docs
 CarterBoyerLindquist
 ```
 
-### Equations of motion
+## Equations of motion
 
 The following separable ODE system describes a photon trajectory in the Kerr spacetime:
 
@@ -68,7 +75,7 @@ rayintegrator(u, p::CarterGeodesicParams, λ)
 rayintegrator!(du, u, p::CarterGeodesicParams, λ)
 ```
 
-### Constants of motion
+## Constants of motion
 
 The constants of motion are:
 
@@ -78,8 +85,14 @@ S
 LQ
 ```
 
+In `LQ`, we additionally have:
 
-### Properties of the spacetime
+```@docs
+A
+```
+
+
+## Properties of the spacetime
 
 The event horizon and marginally stable / innermost stable circular orbit (ISCO) is given by: 
 
@@ -88,10 +101,9 @@ R₀
 rms
 Z₁
 Z₂
-A
 ```
 
-### Impact parameter mapping
+## Impact parameter mapping
 
 The impact parameters $\alpha$ and $\beta$ are mapped into observer angles via:
 
@@ -100,7 +112,7 @@ sinΦsinΨ
 ```
 
 
-### Implementation details
+## Implementation details
 
 The sign of the potentials [`Vr`](@ref), [`Vθ`](@ref) is tracked via `DiscreteCallback` functions. This allows the potentials to be checked multiple times per time step (depending on the solver), but updated only once per time step.
 
