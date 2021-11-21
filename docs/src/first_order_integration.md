@@ -125,9 +125,11 @@ flip_radial_sign
 flip_angular_sign
 ```
 
-Ensemble renderings create new integration problems with
-```
-newparams
+The `flip_*_sign` call a specific modifying functions:
+
+```@docs
+flip_rsign
+flip_θsign
 ```
 
 The full configuration for a single geodesic is stored in:

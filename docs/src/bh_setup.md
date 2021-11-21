@@ -29,11 +29,20 @@ SingleParams
 ParallelParams
 ```
 
+For `ParallelParams`, a problem function must be defined that updates the initial conditions for each ensemble: 
+
+```@docs
+makeprobfunc
+```
+
+
 These can be instances and used with:
 
 ```@docs
 integrategeodesic
 ```
+
+## Integration chart
 
 All geodesics are light-like (*todo*: time-like), starting by default at $λ=0$, $r=1000$ orientated towards the black hole.
 

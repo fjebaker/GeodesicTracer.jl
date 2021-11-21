@@ -5,8 +5,8 @@ using GeodesicTracer
 
 makedocs(
     modules=[GeodesicTracer],
-    clean=false,
-    sitename="GeodesicTracer Documentation",
+    clean=true,
+    sitename="GeodesicTracer.jl",
 
     pages = [
         "Home" => "index.md",
@@ -16,11 +16,11 @@ makedocs(
             "1st Order" => "first_order_integration.md",
             "2nd Order" => "second_order_integration.md"
         ],
-        "Rendering" => "rendering.md",
-        "Value Functions" => [
-            "Generic" => "value_functions.md",
-            "Redshift" => "redshift.md"
-        ],
+        #"Rendering" => "rendering.md",
+        #"Value Functions" => [
+        #    "Generic" => "value_functions.md",
+        #    "Redshift" => "redshift.md"
+        #],
     ]
 )
 
