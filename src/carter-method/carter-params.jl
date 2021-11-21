@@ -31,9 +31,6 @@ A Carter-Boyer-Lindquist method specialisation of [`GeodesicParams`](@ref).
     storage::V = nothing
 end
 
-"""
-    $(TYPEDSIGNATURES)
-"""
 CarterGeodesicParams(α, β, s::BHSetup) = CarterGeodesicParams(α, β, s::BHSetup, nothing)
 function CarterGeodesicParams(α, β, s::BHSetup, storage)
     metric = s.metric
@@ -63,15 +60,12 @@ Return a new [`CarterGeodesicParams`](@ref) with the `θ_sign` parameter sign fl
 """
 flip_θsign(λ, p::CarterGeodesicParams) = @set(@set(p.θ_sign = -p.θ_sign).λθ_change = λ)
 
+
 """
     $(TYPEDSIGNATURES)
+
+Carter method specialisation.
 """
-function newparams(p::CarterGeodesicParams, θ, r, α, β, δα)::CarterGeodesicParams
-    l, q = LQ(p.metric.M, r, p.metric.a, θ, α + δα, β)
-    @set(@set(p.L = l).Q = q)
-end
-
-
 function makeprobfunc(s::BHSetup{CarterBoyerLindquist{T}}, α_range, β, num) where {T}
     α = α_range[1]
     δα = (α_range[2] - α) / num

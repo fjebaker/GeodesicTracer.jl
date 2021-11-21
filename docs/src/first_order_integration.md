@@ -1,89 +1,139 @@
 # First order integration
 
+```@meta
+CurrentModule = GeodesicTracer
+```
+
+First order geodesic methods rely on being able to solve an ODE system separably, which requires linearising the geodesic equation such as via the Hamilton-Jacobi method. This is often non-trivial, and introduces new manifolds and embeddings that require the integration method to do something extra, such as keeping track of additional changing quantities.
+
+As a consequence, the first order methods require special treatment from the integrator perspective, and tailored methods specific to a particular solution.
+
+Below are the currently implemented solutions in this library (which is currently only one).
 
 ## Carter's linearized solutions in Boyer-Lindquist coordinates
 
+Carter (1968) derived a fourth constant of motion from the Boyer-Lindquist coordinates describing the Kerr spacetime, which allowed the 2nd order geodesic equations to be linearized[^1].
 
-All of the integration problems are solved using [DifferentialEquations.jl](https://diffeq.sciml.ai/stable/).
+[^1]: B. Carter (1968), *Global Structure of the Kerr Family of Gravitational Fields*, Phys Rev, **174**, 5.
 
-## Gallery
+The Kerr metric in the Boyer-Lindquist coordinates is written
 
-Integrating geodesic curves:
-
-![maximally_rotating](assets/maximally-rotating.png)
-
-![schwarzschild](assets/non-rotating.png)
-
-
-## Methods
-
-All geodesics are light-like, starting at $t=0$, $r=1000$ orientated towards the black hole.
-
-The integrator defines a chart 
-
-```julia
-function chartbounds(u, params, t)
-    t, r, θ, ϕ = u[1:4]
-    on_chart = event_horizon < r < effective infinity
-    !on_chart
-end
+```math
+\begin{aligned}
+\text{d}s^2 = 
+& - \left( 1 - \frac{2Mr}{\Sigma} \right) \text{d}t^2 \\
+& - \left( \frac{4 Mar \sin^2}{\Sigma} \right) \text{d}t \text{d}\phi \\
+& + \left( \frac{\Sigma}{\Delta} \right) \text{d}r^2 \\
+& + \Sigma \text{d}\theta^2 \\
+& + \left( 
+        r^2 + a^2 + \frac{2 M a^2 r \sin^2 \theta}{\Sigma}
+    \right) \sin^2 \theta \text{d}\phi^2,
+\end{aligned}
 ```
 
-which interrupts the integration when the geodesic leaves the local spacetime.
-
-After each step, the sign of $V_r$ and $V_\theta$ is checked, and flipped if needed.
+with:
 
 ```@docs
-calcgeodesic
-integrategeodesic
+Σ
+Δ
 ```
 
-## Configuration
-
-We distinguish between two common problem types
-
-- those where the geodesic paths are desired
-- those where the collision points of the geodesics are desired
-
-This is done for performance; the memory overhead of the later can be far reduced by not storing intermediate values in the integration process.
-
-Internally, these are differentiated through the keyword parameter `save_geodesics` in [`calcgeodesic`](@ref) or passed to an `IntegratorConfig`:
-
-The integration problems and solvers are configured through subtypes of `IntegratorConfig`. These are:
+The metric structure allowing these to be changed is
 
 ```@docs
-GeodesicTracer.IntegratorConfig
-SingleParams
-ParallelParams
+CarterBoyerLindquist
 ```
 
-## Internal methods
+## Equations of motion
 
-The integration problems themselves are given as:
+The following separable ODE system describes a photon trajectory in the Kerr spacetime:
 
 ```@docs
-rayintegrator
-rayintegrator!
+Σδt_δλ
+Σδr_δλ
+Σδθ_δλ
+Σδϕ_δλ
 ```
 
-The paths of the geodesics are monitored for the effective potential signs flips by:
-
-```@docs 
-GeodesicTracer.signflip
-GeodesicTracer.wrapcallback
-```
-
-Internally, the helper methods for ensemble renderings are:
+with potentials
 
 ```@docs
-GeodesicTracer.newparams
+Vr
+Vθ
 ```
 
-## Internal types
+In terms of the solver we implement, these four equations are wrapped in
+```@docs
+δ 
+δ!
+```
+
+The dispatch calling these:
 
 ```@docs
-GeodesicTracer.GeodesicParams
-GeodesicTracer.flip_rsign
-GeodesicTracer.flip_θsign
-GeodesicTracer.changetype
+rayintegrator(u, p::CarterGeodesicParams, λ)
+rayintegrator!(du, u, p::CarterGeodesicParams, λ)
+```
+
+## Constants of motion
+
+The constants of motion are:
+
+```@docs
+T
+S
+LQ
+```
+
+In `LQ`, we additionally have:
+
+```@docs
+A
+```
+
+
+## Properties of the spacetime
+
+The event horizon and marginally stable / innermost stable circular orbit (ISCO) is given by: 
+
+```@docs
+R₀
+rms
+Z₁
+Z₂
+```
+
+## Impact parameter mapping
+
+The impact parameters $\alpha$ and $\beta$ are mapped into observer angles via:
+
+```@docs
+sinΦsinΨ
+```
+
+
+## Implementation details
+
+The sign of the potentials [`Vr`](@ref), [`Vθ`](@ref) is tracked via `DiscreteCallback` functions. This allows the potentials to be checked multiple times per time step (depending on the solver), but updated only once per time step.
+
+This is achieved via
+
+```@docs
+is_radial_pot_negative
+is_angular_pot_negative
+flip_radial_sign
+flip_angular_sign
+```
+
+The `flip_*_sign` call a specific modifying functions:
+
+```@docs
+flip_rsign
+flip_θsign
+```
+
+The full configuration for a single geodesic is stored in:
+
+```@docs
+CarterGeodesicParams
 ```

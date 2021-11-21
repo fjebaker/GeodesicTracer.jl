@@ -50,14 +50,12 @@ end
 
 """
     $(TYPEDSIGNATURES)
-    $(FUNCTIONNAME)(x::FourVector, p::GeodesicParams, α, β)
-    $(FUNCTIONNAME)(x::AbstractVector, p::GeodesicParams, α, β)
 
 Calculates conserved quantities
     - angular momentum ``L`` 
     - Carter parameter ``Q``
 
-for a photon described by `x`, a [`FourVector`](@ref) in a Kerr spacetime given by 
+for a photon described with position described by `x` in a Kerr spacetime given by 
 `p`.
 
 From Fanton et al. (1997), eq. (69):

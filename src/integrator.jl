@@ -1,28 +1,5 @@
 """
     $(TYPEDSIGNATURES)
-
-Integration problem. Here, `du` represents velocity 4-vector
-
-```math
-\\left(
-    \\frac{\\text{d}t}{\\text{d}\\lambda},
-    \\frac{\\text{d}r}{\\text{d}\\lambda},
-    \\frac{\\text{d}\\theta}{\\text{d}\\lambda},
-    \\frac{\\text{d}\\phi}{\\text{d}\\lambda}
-\\right),
-```
-
-and `u` is the regular 4-vector
-
-```math
-\\left( t, r, \\theta, \\phi \\right).
-```
-
-These are calculated by [`δ`](@ref).
-
-# Developer notes
-
-This function can be dispatched over `p` if needed.
 """
 function secondorder_rayintegrator(v::StaticVector, u::StaticVector, p::GeodesicParams, λ)
     SVector(geodesic_eq(u, v, p.metric)...)
@@ -37,19 +14,6 @@ Inplace variant of [`secondorder_rayintegrator`](@ref).
 function secondorder_rayintegrator!(dv, v, u, p::GeodesicParams, λ)
     dv .= geodesic_eq(u, v, p.metric)
 end
-
-"""
-    $(TYPEDSIGNATURES)
-
-Inplace variant of [`rayintegrator`](@ref).
-"""
-function rayintegrator!(du, u, p::GeodesicParams, λ)
-    x = @inbounds @view(u[1:4])
-    v = @inbounds @view(u[5:8])
-    du[1:4] .= v
-    du[5:8] .= geodesic_eq(x, v, p.metric)
-end
-rayintegrator!(du, u, p::AbstractArray{GeodesicParams}, λ) = rayintegrator!(du, u, p[1], λ)
 
 
 """
