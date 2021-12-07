@@ -1,7 +1,7 @@
 """
     $(TYPEDSIGNATURES)
 """
-function secondorder_rayintegrator(v::StaticVector, u::StaticVector, p::GeodesicParams, λ)
+function secondorder_rayintegrator(v::StaticVector, u::StaticVector, p::GeodesicParams{V,T}, λ) where {V,T}
     SVector(geodesic_eq(u, v, p.metric)...)
 end
 
@@ -11,7 +11,7 @@ end
 
 Inplace variant of [`secondorder_rayintegrator`](@ref).
 """
-function secondorder_rayintegrator!(dv, v, u, p::GeodesicParams, λ)
+function secondorder_rayintegrator!(dv, v, u, p::GeodesicParams{V,T}, λ) where {V,T}
     dv .= geodesic_eq(u, v, p.metric)
 end
 
