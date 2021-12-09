@@ -209,6 +209,9 @@ end
 
 """
 Specialisation for 2nd order method.
+
+Broken at the moment -- need a raising / lowering operator for the above functional form, else
+a better derivation of p.u .
 """
 @inline function redshift_function(val, λ, u, v, p::GeodesicParams, d)
     @inbounds if u[2] > rms(p.metric.M, p.metric.a)
