@@ -32,7 +32,7 @@ where ``f`` is the field of view factor.
     @deftype Float64
     "Metric structure."
     metric::M = CarterBoyerLindquist()
-    
+
     "Azimuthal angle of observer."
     ϕ₀ = 0.0             # azimuthal angle
     "Inclination of observer."

@@ -94,6 +94,3 @@ function solvegeodesic(prob, cf::IntegratorConfig{F,S}) where {F,S}
         callback = cf.callback
     )
 end
-
-
-
