@@ -3,7 +3,7 @@ abstract type AccretionDisk end
 """
     $(TYPEDEF)
 
-Geometrically thing, optically thick accretion disk.
+Geometrically thin, optically thick accretion disk.
 
 $(FIELDS)
 """
