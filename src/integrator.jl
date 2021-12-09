@@ -1,7 +1,12 @@
 """
     $(TYPEDSIGNATURES)
 """
-function secondorder_rayintegrator(v::StaticVector, u::StaticVector, p::GeodesicParams{V,T}, λ) where {V,T}
+function secondorder_rayintegrator(
+    v::StaticVector,
+    u::StaticVector,
+    p::GeodesicParams{V,T},
+    λ
+) where {V,T}
     SVector(geodesic_eq(u, v, p.metric)...)
 end
 
@@ -124,12 +129,7 @@ end
     prob = ODEProblem{true}(rayintegrator!, x, time_domain, p)
     solvegeodesic(prob, cf)
 end
-@inline function integrate(
-    x,
-    time_domain,
-    p,
-    cf::IntegratorConfig{EnsembleGPUArray}
-)
+@inline function integrate(x, time_domain, p, cf::IntegratorConfig{EnsembleGPUArray})
     x = Float32[x...]
     prob = ODEProblem{true}(rayintegrator!, x, time_domain, [changetype(Float32, p)])
     solvegeodesic(prob, cf)
@@ -145,23 +145,11 @@ end
     prob = SecondOrderODEProblem{false}(secondorder_rayintegrator, v, x, time_domain, p)
     solvegeodesic(prob, cf)
 end
-@inline function integrate(
-    x,
-    v,
-    time_domain,
-    p::GeodesicParams,
-    cf::IntegratorConfig
-)
+@inline function integrate(x, v, time_domain, p::GeodesicParams, cf::IntegratorConfig)
     prob = SecondOrderODEProblem{true}(secondorder_rayintegrator!, v, x, time_domain, p)
     solvegeodesic(prob, cf)
 end
-@inline function integrate(
-    v,
-    x,
-    time_domain,
-    p,
-    cf::IntegratorConfig{EnsembleGPUArray}
-)
+@inline function integrate(v, x, time_domain, p, cf::IntegratorConfig{EnsembleGPUArray})
     v_float32 = Float32[v...]
     x_float32 = Float32[x...]
     prob = SecondOrderODEProblem{true}(

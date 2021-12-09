@@ -79,9 +79,9 @@ The choice of ``\\pm`` is chosen by the sign of ``a``.
 @inline function rms(M, a, ±)
     M * (3 + Z₂(M, a) ± √((3 - Z₁(M, a)) * (3 + Z₁(M, a) + 2 * Z₂(M, a))))
 end
-@inline function rms(M, a) 
+@inline function rms(M, a)
     a > 0.0 ? rms(M, a, -) : rms(M, a, +)
-end 
+end
 @inline function rms(s::BHSetup)
     rms(s.metric.M, s.metric.a)
 end

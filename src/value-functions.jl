@@ -7,14 +7,25 @@ struct ValueFunction{F}
     ValueFunction(func) = ValueFunction(func, NaN64)
 end
 
-@inline function (vf::ValueFunction)(last_λ, last_u, last_v, p, s::BHSetup, d::AccretionDisk)::Float64 where {T}
+@inline function (vf::ValueFunction)(
+    last_λ,
+    last_u,
+    last_v,
+    p,
+    s::BHSetup,
+    d::AccretionDisk
+)::Float64 where {T}
     @inbounds if last_λ < s.λhigh && d.r_inner < last_u[2] < d.r_outer
         return vf.func(0.0, last_λ, last_u, last_v, p, d)
     end
     vf.initval
 end
 
-@inline function (vf::ValueFunction)(sol, s::BHSetup{CarterBoyerLindquist{T}}, d::AccretionDisk)::Float64 where {T}
+@inline function (vf::ValueFunction)(
+    sol,
+    s::BHSetup{CarterBoyerLindquist{T}},
+    d::AccretionDisk
+)::Float64 where {T}
     @inbounds vf(sol.t[end], sol.u[end], nothing, sol.prob.p, s, d)
 end
 @inline function (vf::ValueFunction)(sol, s, d::AccretionDisk)::Float64
@@ -22,7 +33,11 @@ end
 end
 
 # no disk specialisations
-@inline function (vf::ValueFunction)(sol, s::BHSetup{CarterBoyerLindquist{T}}, d::Nothing)::Float64 where {T}
+@inline function (vf::ValueFunction)(
+    sol,
+    s::BHSetup{CarterBoyerLindquist{T}},
+    d::Nothing
+)::Float64 where {T}
     vf.func(vf.initval, sol.t[end], sol.u[end], nothing, sol.prob.p, d)
 end
 @inline function (vf::ValueFunction)(sol, s, d::Nothing)::Float64
@@ -31,8 +46,14 @@ end
 
 @inline function Base.:∘(vf1::ValueFunction, vf2::ValueFunction)
     ValueFunction(
-        (val, last_λ, last_u, last_v, p, d) ->
-            vf1.func(vf2.func(val, last_λ, last_u, last_v, p, d), last_λ, last_u, last_v, p, d)
+        (val, last_λ, last_u, last_v, p, d) -> vf1.func(
+            vf2.func(val, last_λ, last_u, last_v, p, d),
+            last_λ,
+            last_u,
+            last_v,
+            p,
+            d
+        )
     )
 end
 

@@ -1,8 +1,16 @@
 """
     $(TYPEDSIGNATURES)
 """
-@inline function render!(row, α_range, β, d, s, valuefunc::ValueFunction; solver=Tsit5())
-    simsols = calcgeodesic(α_range, s.img_width, β, s, disk = d, save_geodesics = false, solver=solver)
+@inline function render!(row, α_range, β, d, s, valuefunc::ValueFunction; solver = Tsit5())
+    simsols = calcgeodesic(
+        α_range,
+        s.img_width,
+        β,
+        s,
+        disk = d,
+        save_geodesics = false,
+        solver = solver
+    )
     Threads.@threads for i = 1:s.img_width
         row[i] = valuefunc(simsols[i], s, d)
     end
@@ -42,7 +50,15 @@ function render!(image, d, s, valuefunc::ValueFunction; kwargs...)
         # generate space of α to integrate
         # have to use a slight 0.01 offset to avoid integrating α=0.0 geodesics
         α_range = ((0.01 - x_mid) / s.fov_factor, (0.01 + x_mid) / s.fov_factor)
-        render!(@view(image[Y, :]), α_range, (Y - y_mid) / s.fov_factor, d, s, valuefunc; kwargs...)
+        render!(
+            @view(image[Y, :]),
+            α_range,
+            (Y - y_mid) / s.fov_factor,
+            d,
+            s,
+            valuefunc;
+            kwargs...
+        )
     end
 end
 

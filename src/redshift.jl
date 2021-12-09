@@ -188,13 +188,11 @@ function plg_pdotu_inv(E, L, M, Q, rms, r, a, sign_r)
         sign_r * uʳ(M, rms, r) * Σδr_δλ(E, L, M, Q, r, a) / Δ(M, r, a)
     )
 end
-plg_pdotu_inv(u, p::CarterGeodesicParams, sign_r) = 
+plg_pdotu_inv(u, p::CarterGeodesicParams, sign_r) =
     plg_pdotu_inv(p.metric.E, p.L, p.metric.M, p.Q, p.rms, u[2], p.metric.a, sign_r)
 function plg_pdotu_inv(u, v, p::GeodesicParams)
     let r = u[2], a = p.metric.a, M = p.metric.M, rms = rms(p.metric.M, p.metric.a)
-        inv(
-            uᵗ(M, rms, r, a) * v[1] - uᶲ(M, rms, r, a) * v[4] - uʳ(M, rms, r) * v[2]
-        )
+        inv(uᵗ(M, rms, r, a) * v[1] - uᶲ(M, rms, r, a) * v[4] - uʳ(M, rms, r) * v[2])
     end
 end
 
@@ -209,9 +207,10 @@ end
     end
 end
 
+"""
+Specialisation for 2nd order method.
+"""
 @inline function redshift_function(val, λ, u, v, p::GeodesicParams, d)
-    # this function needs a specialsation for GeodesicParams
-    # since at the moment reg_pdotu_inv and plg_pdotu_inv are Carter specific
     @inbounds if u[2] > rms(p.metric.M, p.metric.a)
         return reg_pdotu_inv(u, v, p)
     else
@@ -219,6 +218,4 @@ end
     end
 end
 
-const redshift = ValueFunction(
-    redshift_function
-)
+const redshift = ValueFunction(redshift_function)
