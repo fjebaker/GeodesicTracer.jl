@@ -1,38 +1,5 @@
 using Test, GeodesicTracer
 
-@testset "Types and Constructors" begin
-    s = BHSetup()
-    p = GeodesicTracer.GeodesicParams(0.0, 0.0, s)
-
-    @test typeof(GeodesicTracer.changetype(Float32, p).a) == Float32
-end
-
-@testset "Coordinate Consistency" begin
-    s = BHSetup()
-
-    p = GeodesicTracer.GeodesicParams(4.0, 0.0, s)
-    @test GeodesicTracer.rms(s) == p.rms
-    @test GeodesicTracer.rms(s) == GeodesicTracer.rms(p)
-
-    s.a = -1.0
-    p = GeodesicTracer.GeodesicParams(4.0, 0.0, s)
-    @test GeodesicTracer.rms(s) == p.rms
-    @test GeodesicTracer.rms(s) == GeodesicTracer.rms(p)
-
-    s.a = 1.0
-    p = GeodesicTracer.GeodesicParams(4.0, 0.0, s)
-    @test GeodesicTracer.rms(s) == p.rms
-    @test GeodesicTracer.rms(s) == GeodesicTracer.rms(p)
-
-    p2 = GeodesicTracer.flip_rsign(9.0, p)
-    @test p2.r_sign == - p.r_sign
-    @test p2.λr_change == 9.0
-
-    p2 = GeodesicTracer.flip_θsign(9.0, p)
-    @test p2.θ_sign == - p.θ_sign
-    @test p2.λθ_change == 9.0
-end 
-
 @testset "Geodesic Integrations" begin
     s = BHSetup()
 
