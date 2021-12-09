@@ -1,5 +1,4 @@
-using LinearAlgebra
-using RecursiveArrayTools
+abstract type AbstractGeodesicParams{V,T} end
 
 """
     $(TYPEDEF)

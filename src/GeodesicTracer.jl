@@ -1,10 +1,12 @@
 module GeodesicTracer
 
+using LinearAlgebra
+import Base: getindex, setindex!, size, length
+
 using DifferentialEquations
 using StaticArrays
 using DiffEqGPU
-
-import Base: getindex, setindex!, size, length
+using RecursiveArrayTools
 
 using DocStringExtensions
 using Parameters
@@ -21,7 +23,6 @@ include("carter-method/carter-boyer-lindquist.jl")
 include("bh-setup.jl")
 
 # geodesic parameters
-include("abstract-geodesic-params.jl")
 include("geodesic-eq-method/geodesic-params.jl")
 include("carter-method/carter-params.jl")
 
