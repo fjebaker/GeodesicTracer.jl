@@ -89,7 +89,7 @@ end
 Dispatch method for integrating a geodesic defined by `s` and `cf`. For configuration of 
 this method, see [`BHSetup`](@ref) and [`IntegratorConfig`](@ref).
 """
-function integrategeodesic(s::BHSetup, cf::IntegratorConfig; storage = nothing)
+function integrategeodesic(s::BHSetup{M}, cf::IntegratorConfig; storage = nothing) where {M}
     p = GeodesicParams(cf.α, cf.β, s, storage)
 
     x = SVector(0.0, s.r₀, s.θ₀, s.ϕ₀)
@@ -99,6 +99,9 @@ function integrategeodesic(s::BHSetup, cf::IntegratorConfig; storage = nothing)
 
     integrate(v, x, (s.λlow, s.λhigh), p, cf)
 end
+"""
+Specialisation for 1st order case.
+"""
 function integrategeodesic(
     s::BHSetup{CarterBoyerLindquist{T}},
     cf::IntegratorConfig;
