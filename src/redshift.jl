@@ -166,8 +166,6 @@ uᵗ(M, rms, r, a) = γₑ(M, rms) * (1 + 2 * M * (1 + H(M, rms, r, a)) / r)
 
 """
     $(TYPEDSIGNATURES)
-
-BLANK
 """
 function reg_pdotu_inv(L, M, r, a, θ)
     (eⱽ(M, r, a, θ) * √(1 - Vₑ(M, r, a, θ)^2)) / (1 - L * Ωₑ(M, r, a))
@@ -175,10 +173,14 @@ end
 reg_pdotu_inv(u, p::CarterGeodesicParams) =
     reg_pdotu_inv(p.L, p.metric.M, u[2], p.metric.a, u[3])
 
+function reg_pdotu_inv(u, v, p::GeodesicParams)
+    let r = u[2], θ = u[3], a = p.metric.a, M = p.metric.M
+        (eⱽ(M, r, a, θ) * √(1 - Vₑ(M, r, a, θ)^2)) / (1 - abs(v[4]) * Ωₑ(M, r, a))
+    end
+end
+
 """
     $(TYPEDSIGNATURES)
-
-BLANK
 """
 function plg_pdotu_inv(E, L, M, Q, rms, r, a, sign_r)
     inv(
@@ -188,3 +190,35 @@ function plg_pdotu_inv(E, L, M, Q, rms, r, a, sign_r)
 end
 plg_pdotu_inv(u, p::CarterGeodesicParams, sign_r) = 
     plg_pdotu_inv(p.metric.E, p.L, p.metric.M, p.Q, p.rms, u[2], p.metric.a, sign_r)
+function plg_pdotu_inv(u, v, p::GeodesicParams)
+    let r = u[2], a = p.metric.a, M = p.metric.M, rms = rms(p.metric.M, p.metric.a)
+        inv(
+            uᵗ(M, rms, r, a) * v[1] - uᶲ(M, rms, r, a) * v[4] - uʳ(M, rms, r) * v[2]
+        )
+    end
+end
+
+
+@inline function redshift_function(val, λ, u, v, p::CarterGeodesicParams, d)
+    # this function needs a specialsation for GeodesicParams
+    # since at the moment reg_pdotu_inv and plg_pdotu_inv are Carter specific
+    @inbounds if u[2] > rms(p.metric.M, p.metric.a)
+        return reg_pdotu_inv(u, p)
+    else
+        return plg_pdotu_inv(u, p, λ < p.λr_change ? -1 : 1)
+    end
+end
+
+@inline function redshift_function(val, λ, u, v, p::GeodesicParams, d)
+    # this function needs a specialsation for GeodesicParams
+    # since at the moment reg_pdotu_inv and plg_pdotu_inv are Carter specific
+    @inbounds if u[2] > rms(p.metric.M, p.metric.a)
+        return reg_pdotu_inv(u, v, p)
+    else
+        return plg_pdotu_inv(u, v, p)
+    end
+end
+
+const redshift = ValueFunction(
+    redshift_function
+)
