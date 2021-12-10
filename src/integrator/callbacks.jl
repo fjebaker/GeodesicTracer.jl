@@ -62,16 +62,15 @@ wrapcallback(s::BHSetup, disk) = DiscreteCallback(
     end,
     terminate!
 )
-wrapcallback(s::BHSetup, disk::Nothing) = DiscreteCallback(
-    (u, λ, integrator) -> chartbounds(u[6], integrator.p),
-    terminate!
-)
+wrapcallback(s::BHSetup, disk::Nothing) =
+    DiscreteCallback((u, λ, integrator) -> chartbounds(u[6], integrator.p), terminate!)
 function wrapcallback(s::BHSetup{CarterBoyerLindquist{T}}, disk) where {T}
     CallbackSet(
         DiscreteCallback(is_radial_pot_negative, flip_radial_sign),
         DiscreteCallback(is_angular_pot_negative, flip_angular_sign),
         DiscreteCallback(
-            (u, λ, integrator) -> chartbounds(u[2], integrator.p) || intersect!(integrator, u, disk),
+            (u, λ, integrator) ->
+                chartbounds(u[2], integrator.p) || intersect!(integrator, u, disk),
             terminate!
         )
     )
@@ -80,9 +79,6 @@ function wrapcallback(s::BHSetup{CarterBoyerLindquist{T}}, disk::Nothing) where 
     CallbackSet(
         DiscreteCallback(is_radial_pot_negative, flip_radial_sign),
         DiscreteCallback(is_angular_pot_negative, flip_angular_sign),
-        DiscreteCallback(
-            (u, λ, integrator) -> chartbounds(u[2], integrator.p),
-            terminate!
-        )
+        DiscreteCallback((u, λ, integrator) -> chartbounds(u[2], integrator.p), terminate!)
     )
 end

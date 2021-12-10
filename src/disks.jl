@@ -3,7 +3,7 @@ abstract type AccretionDisk end
 """
     $(TYPEDEF)
 
-Geometrically thing, optically thick accretion disk.
+Geometrically thin, optically thick accretion disk.
 
 $(FIELDS)
 """
@@ -72,16 +72,5 @@ function intersect!(integrator, u, d::GeometricDisk)
 
     false
 end
-
-
-#= function intersects(x1, x2, d::GeometricDisk)
-    sinα = sin(d.inclination)
-    cosα = cos(d.inclination)
-    r1, θ1, ϕ1 = x1[2:4]
-    r2, θ2, ϕ2 = x2[2:4]
-    s1 = r1 * (cosα * sin(θ1) * cos(ϕ1) + sinα * cos(θ1))
-    s2 = r2 * (cosα * sin(θ2) * cos(ϕ2) + sinα * cos(θ2))
-    return (s1 * s2) ≤ 0 && d.r_inner < r1 < d.r_outer
-end =#
 
 export GeometricDisk
