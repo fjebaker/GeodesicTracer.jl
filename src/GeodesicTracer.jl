@@ -1,47 +1,64 @@
 module GeodesicTracer
 
-using LinearAlgebra
-import Base: getindex, setindex!, size, length
-
 using DifferentialEquations
 using StaticArrays
-using DiffEqGPU
-using RecursiveArrayTools
-
 using DocStringExtensions
 using Parameters
-using Accessors
 
-using ComputedGeodesicEquations
+using GeodesicBase
 
-# re-export metric structures
-export BoyerLindquist, EddingtonFinkelstein
-# include additional metric structures
-include("carter-method/carter-boyer-lindquist.jl")
+include("callbacks.jl")
+include("problem.jl")
+include("tracer.jl")
+include("constraints.jl")
 
-# setup functions
-include("bh-setup.jl")
+"""
+    tracegeodesics(
+        m::AbstractMetricParams{T}, 
+        init_positions, init_velocities, 
+        time_domain::Tuple{T,T}
+        ; 
+        μ = 0.0f0, 
+        callbacks=Nothing,
+        solver=Tsit5(),
+        solver_opts...
+    ) 
 
-# geodesic parameters
-include("geodesic-eq-method/geodesic-params.jl")
-include("carter-method/carter-params.jl")
+Integrate a geodesic for metric parameterised by `m`, for some initial positions and velocities.
+The positions and velocities may be
+    - a single position and velocity in the form of a vector of numbers
+    - a collection of positions and velocities, as either a vector of vectors, or as a matrix
 
-# integrator setup
-include("integrator/configurations.jl")
-include("integrator/callbacks.jl")
-include("integrator/implementations.jl")
-include("integrator/interface.jl")
+The matrix specification reads each corresponding column as the initial position and velocity. When a collection of
+positions and velocities is supplied, this method dispatched `EnsembleProblem`, offering `ensemble` as a `solver_opts`,
+specifying the ensemble method to use.
 
-# coordinate functions
-include("coordinates.jl")
-include("carter-method/carter-quantities.jl")
-include("carter-method/fanton.jl")
-
-# disks and rendering
-include("disks.jl")
-include("value-functions.jl")
-include("render.jl")
-
-include("redshift.jl")
-
+`solver_opts` are the common solver options in DifferentialEquations.
+"""
+function tracegeodesics(
+    m::AbstractMetricParams{T}, 
+    init_positions, init_velocities, 
+    time_domain::Tuple{T,T}
+    ; 
+    μ = 0.0f0, 
+    callbacks=Nothing,
+    solver=Tsit5(),
+    solver_opts...
+    ) where {T}
+    __tracegeodesics(
+        m, 
+        init_positions, 
+        # ensure everything already normalised
+        constrain_all(m, init_positions, init_velocities, μ),
+        time_domain,
+        solver
+        ;
+        μ=μ,
+        callbacks=callbacks,
+        solver_opts...
+    )
 end
+
+export tracegeodesics
+
+end # module
