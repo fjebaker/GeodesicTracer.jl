@@ -7,12 +7,13 @@ function metric_callback(m::AbstractMetricParams{T}) where {T}
 end
 
 function create_callback_set(m::AbstractMetricParams{T}, cb::Nothing) where {T}
-    metric_callback(m)
+    mcb = metric_callback(m)
+    mcb isa Tuple ?
+        CallbackSet(mcb...) : mcb
 end
 
 function create_callback_set(m::AbstractMetricParams{T}, cb::Tuple) where {T}
-    CallbackSet(
-        metric_callback(m),
-        cb...
-    )
+    mcb = metric_callback(m)
+    mcb isa Tuple ?
+        CallbackSet(mcb..., cb...) : CallbackSet(mcb, cb...)
 end
