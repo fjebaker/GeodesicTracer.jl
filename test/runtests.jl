@@ -4,7 +4,7 @@ struct TestMetricParams{T} <: GeodesicTracer.AbstractMetricParams{T}
     test::T
 end
 
-GeodesicTracer.constrain(m::TestMetricParams{T}, u, v; μ=μ) where {T} =  sum(v)
+GeodesicTracer.constrain(m::TestMetricParams{T}, u, v; μ = μ) where {T} = sum(v)
 
 SVector = GeodesicTracer.SVector
 
@@ -27,7 +27,7 @@ SVector = GeodesicTracer.SVector
     end
 
 
-    @testset "Vector of Vectors" begin 
+    @testset "Vector of Vectors" begin
         us = Vector{Float64}[
             [1.0, 1.0, 1.0, 1.0],
             [1.0, 1.0, 1.0, 1.0],
