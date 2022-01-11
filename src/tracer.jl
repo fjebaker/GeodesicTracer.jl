@@ -29,7 +29,7 @@ function __tracegeodesics(
         prob_func = (prob, i, repeat) -> integrator_problem(m, @view(init_positions[:, i]), @view(init_velocities[:, i]), time_domain),
         safetycopy = false
     )
-    integrate_prob(m, solver, ens_prob; ensemble = EnsembleThreads(), trajectories=length(init_positions), kwargs...)
+    integrate_prob(m, solver, ens_prob; ensemble = EnsembleThreads(), trajectories=size(init_positions, 2), kwargs...)
 end
 
 # indexables
