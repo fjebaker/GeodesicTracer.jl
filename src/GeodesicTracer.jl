@@ -55,6 +55,8 @@ function tracegeodesics(
         ;
         μ=μ,
         callbacks=callbacks,
+        abstol=1e-8,
+        reltol=1e-8,
         solver_opts...
     )
 end
