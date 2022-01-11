@@ -15,7 +15,7 @@ end
 
 # vectors of vectors 
 function constrain_all(m::AbstractMetricParams{T}, us, vs, μ) where {T<:Number}
-    curried(u, v) = constrain(m, u, v, μ=μ)
+    curried(u, v) = constrain_all(m, u, v, μ)
     curried.(us, vs)
 end
 
