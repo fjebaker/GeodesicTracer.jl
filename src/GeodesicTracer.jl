@@ -40,7 +40,7 @@ function tracegeodesics(
     init_positions, init_velocities, 
     time_domain::Tuple{T,T}
     ; 
-    μ = 0.0f0, 
+    μ = 0.0, 
     callbacks=Nothing,
     solver=Tsit5(),
     solver_opts...
@@ -49,7 +49,7 @@ function tracegeodesics(
         m, 
         init_positions, 
         # ensure everything already normalised
-        constrain_all(m, init_positions, init_velocities, μ),
+        constrain_all(m, init_positions, init_velocities, T(μ)),
         time_domain,
         solver
         ;
