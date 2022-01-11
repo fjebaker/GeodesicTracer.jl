@@ -26,5 +26,7 @@ function constrain_all(m::AbstractMetricParams{T}, u::AbstractVector{T}, v::Abst
 end
 
 function constrain_all(m::AbstractMetricParams{T}, u::StaticVector{S,T}, v::StaticVector{S,T}, μ) where {S,T<:Number}
-    SVector(constrain(m, u, v, μ=μ), v[2:end]...) 
+    mut = MVector{S,T}(v)
+    mut[1] = constrain(m, u, v, μ=μ)
+    SVector{S,T}(mut)
 end

@@ -47,3 +47,13 @@ function solve_prob_with_cbs(solver, prob, cbs; ensemble, solver_opts...)
         solver_opts...
     )
 end
+
+function solve_prob_with_cbs(solver, prob, cbs; solver_opts...)
+    solve(
+        prob,
+        solver,
+        ;
+        callback=cbs,
+        solver_opts...
+    )
+end

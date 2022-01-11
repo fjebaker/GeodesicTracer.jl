@@ -41,7 +41,7 @@ function tracegeodesics(
     time_domain::Tuple{T,T}
     ; 
     μ = 0.0, 
-    callbacks=Nothing,
+    callbacks=nothing,
     solver=Tsit5(),
     solver_opts...
     ) where {T}
