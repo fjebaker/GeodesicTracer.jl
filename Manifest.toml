@@ -284,7 +284,7 @@ uuid = "9fa8497b-333b-5362-9e8d-4d0656e87820"
 [[deps.GeodesicBase]]
 git-tree-sha1 = "fa621bafdff531f76dd084f2080189fd3631b7d3"
 repo-rev = "main"
-repo-url = "https://github.com/astro-group-bristol/GeodesicBase.jl"
+repo-url = "/Users/cosroe/Developer/BlackHoleEcoSystem/GeodesicBase"
 uuid = "1f539516-e6d2-4f24-ab09-50f3ac3c4a5a"
 version = "0.1.0"
 
@@ -374,9 +374,9 @@ version = "0.2.3"
 
 [[deps.Krylov]]
 deps = ["LinearAlgebra", "Printf", "SparseArrays"]
-git-tree-sha1 = "0f47f7a2ecb7f8c4df6d258fd2268b56e62ab17c"
+git-tree-sha1 = "2906bbe840175708e9fc33e5067bdab4bfe42bd2"
 uuid = "ba0b0d4f-ebba-5204-a429-3ac8c609bfb7"
-version = "0.7.9"
+version = "0.7.10"
 
 [[deps.KrylovKit]]
 deps = ["LinearAlgebra", "Printf"]
@@ -541,9 +541,9 @@ version = "1.4.1"
 
 [[deps.OrdinaryDiffEq]]
 deps = ["Adapt", "ArrayInterface", "DataStructures", "DiffEqBase", "DocStringExtensions", "ExponentialUtilities", "FastClosures", "FiniteDiff", "ForwardDiff", "LinearAlgebra", "LinearSolve", "Logging", "LoopVectorization", "MacroTools", "MuladdMacro", "NLsolve", "Polyester", "PreallocationTools", "RecursiveArrayTools", "Reexport", "SparseArrays", "SparseDiffTools", "StaticArrays", "UnPack"]
-git-tree-sha1 = "8ccc645a7afe7000aba981b3cf33efcc40a866b1"
+git-tree-sha1 = "f10323023a0fc017c07de2a6d1b4604cace7f345"
 uuid = "1dea7af3-3e70-54e6-95c3-0bf5283fa5ed"
-version = "6.4.0"
+version = "6.4.1"
 
 [[deps.PDMats]]
 deps = ["LinearAlgebra", "SparseArrays", "SuiteSparse"]
