@@ -19,7 +19,6 @@ function constrain_all(m::AbstractMetricParams{T}, us, vs, μ) where {T<:Number}
     curried.(us, vs)
 end
 
-
 function constrain_all(m::AbstractMetricParams{T}, u::AbstractVector{T}, v::AbstractVector{T}, μ) where {T<:Number}
     v[1] = constrain(m, u, v, μ=μ)
     v

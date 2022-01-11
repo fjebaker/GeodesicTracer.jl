@@ -32,6 +32,25 @@ function __tracegeodesics(
     integrate_prob(m, solver, ens_prob; ensemble = EnsembleThreads(), trajectories=length(init_positions), kwargs...)
 end
 
+# indexables
+function __tracegeodesics(
+    m::AbstractMetricParams{T}, 
+    init_positions, 
+    init_velocities,
+    time_domain::Tuple{T,T},
+    solver
+    ;
+    kwargs...
+    ) where {T}
+    prob = integrator_problem(m, init_positions[1], init_velocities[1], time_domain)
+    ens_prob = EnsembleProblem(
+        prob,
+        prob_func = (prob, i, repeat) -> integrator_problem(m, init_positions[i], init_velocities[i], time_domain),
+        safetycopy = false
+    )
+    integrate_prob(m, solver, ens_prob; ensemble = EnsembleThreads(), trajectories=length(init_positions), kwargs...)
+end
+
 function integrate_prob(m::AbstractMetricParams{T}, solver, prob; callbacks, kwargs...) where {T}
     cbs = create_callback_set(m, callbacks)
     solve_prob_with_cbs(solver, prob, cbs; kwargs...)
