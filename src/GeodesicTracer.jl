@@ -11,6 +11,7 @@ include("callbacks.jl")
 include("problem.jl")
 include("tracer.jl")
 include("constraints.jl")
+include("utility.jl")
 
 """
     tracegeodesics(
@@ -26,8 +27,9 @@ include("constraints.jl")
 
 Integrate a geodesic for metric parameterised by `m`, for some initial positions and velocities.
 The positions and velocities may be
-- a single position and velocity in the form of a vector of numbers
-- a collection of positions and velocities, as either a vector of vectors, or as a matrix
+
+  - a single position and velocity in the form of a vector of numbers
+  - a collection of positions and velocities, as either a vector of vectors, or as a matrix
 
 The matrix specification reads each corresponding column as the initial position and velocity. When a collection of
 positions and velocities is supplied, this method dispatched `EnsembleProblem`, offering `ensemble` as a `solver_opts`,
@@ -40,8 +42,6 @@ function tracegeodesics(
     init_positions,
     init_velocities,
     time_domain::Tuple{T,T};
-    μ = 0.0,
-    callbacks = nothing,
     solver = Tsit5(),
     solver_opts...
 ) where {T}
@@ -52,8 +52,8 @@ function tracegeodesics(
         constrain_all(m, init_positions, init_velocities, T(μ)),
         time_domain,
         solver;
-        μ = μ,
-        callbacks = callbacks,
+        μ = 0.0,
+        callback = nothing,
         abstol = 1e-8,
         reltol = 1e-8,
         solver_opts...

@@ -5,11 +5,12 @@ function __tracegeodesics(
     init_vel::AbstractVector{T},
     time_domain::Tuple{T,T},
     solver;
-    μ,
+    callback,
     kwargs...
 ) where {T}
     prob = integrator_problem(m, init_pos, init_vel, time_domain)
-    integrate_prob(m, solver, prob; kwargs...)
+    cbs = create_callback_set(m, callback)
+    solve_geodesic(solver, prob; callback=cbs, kwargs...)
 end
 
 # columnar of positions and velocity
@@ -19,6 +20,8 @@ function __tracegeodesics(
     init_velocities::AbstractArray{T,2},
     time_domain::Tuple{T,T},
     solver;
+    ensemble = EnsembleThreads(),
+    callback,
     kwargs...
 ) where {T}
     prob = integrator_problem(
@@ -37,12 +40,12 @@ function __tracegeodesics(
         ),
         safetycopy = false
     )
-    integrate_prob(
-        m,
-        solver,
-        ens_prob;
-        ensemble = EnsembleThreads(),
-        trajectories = size(init_positions, 2),
+
+    cbs = create_callback_set(m, callback)
+    solve_geodesic(
+        solver, ens_prob, ensemble;
+        trajectories = size(init_velocities, 2),
+        callback = cbs,
         kwargs...
     )
 end
@@ -54,6 +57,8 @@ function __tracegeodesics(
     init_velocities,
     time_domain::Tuple{T,T},
     solver;
+    ensemble = EnsembleThreads(),
+    callback,
     kwargs...
 ) where {T}
     prob = integrator_problem(m, init_positions[1], init_velocities[1], time_domain)
@@ -63,31 +68,20 @@ function __tracegeodesics(
             integrator_problem(m, init_positions[i], init_velocities[i], time_domain),
         safetycopy = false
     )
-    integrate_prob(
-        m,
-        solver,
-        ens_prob;
-        ensemble = EnsembleThreads(),
-        trajectories = length(init_positions),
+
+    cbs = create_callback_set(m, callback)
+    solve_geodesic(
+        solver, ens_prob, ensemble;
+        trajectories = length(init_velocities),
+        callback = cbs,
         kwargs...
     )
 end
 
-function integrate_prob(
-    m::AbstractMetricParams{T},
-    solver,
-    prob;
-    callbacks,
-    kwargs...
-) where {T}
-    cbs = create_callback_set(m, callbacks)
-    solve_prob_with_cbs(solver, prob, cbs; kwargs...)
-end
-
-function solve_prob_with_cbs(solver, prob, cbs; ensemble, solver_opts...)
+function solve_geodesic(solver, prob, ensemble; solver_opts...)
     solve(prob, solver, ensemble; callback = cbs, solver_opts...)
 end
 
-function solve_prob_with_cbs(solver, prob, cbs; solver_opts...)
+function solve_geodesic(solver, prob; solver_opts...)
     solve(prob, solver, ; callback = cbs, solver_opts...)
 end
