@@ -10,7 +10,7 @@ function __tracegeodesics(
 ) where {T}
     prob = integrator_problem(m, init_pos, init_vel, time_domain)
     cbs = create_callback_set(m, callback)
-    solve_geodesic(solver, prob; callback=cbs, kwargs...)
+    solve_geodesic(solver, prob; callback = cbs, kwargs...)
 end
 
 # columnar of positions and velocity
@@ -43,7 +43,9 @@ function __tracegeodesics(
 
     cbs = create_callback_set(m, callback)
     solve_geodesic(
-        solver, ens_prob, ensemble;
+        solver,
+        ens_prob,
+        ensemble;
         trajectories = size(init_velocities, 2),
         callback = cbs,
         kwargs...
@@ -71,7 +73,9 @@ function __tracegeodesics(
 
     cbs = create_callback_set(m, callback)
     solve_geodesic(
-        solver, ens_prob, ensemble;
+        solver,
+        ens_prob,
+        ensemble;
         trajectories = length(init_velocities),
         callback = cbs,
         kwargs...
@@ -79,9 +83,9 @@ function __tracegeodesics(
 end
 
 function solve_geodesic(solver, prob, ensemble; solver_opts...)
-    solve(prob, solver, ensemble; callback = cbs, solver_opts...)
+    solve(prob, solver, ensemble; solver_opts...)
 end
 
 function solve_geodesic(solver, prob; solver_opts...)
-    solve(prob, solver, ; callback = cbs, solver_opts...)
+    solve(prob, solver, ; solver_opts...)
 end

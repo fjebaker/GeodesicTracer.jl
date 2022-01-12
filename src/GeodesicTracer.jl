@@ -43,6 +43,7 @@ function tracegeodesics(
     init_velocities,
     time_domain::Tuple{T,T};
     solver = Tsit5(),
+    μ = 0.0,
     solver_opts...
 ) where {T}
     __tracegeodesics(
@@ -52,7 +53,6 @@ function tracegeodesics(
         constrain_all(m, init_positions, init_velocities, T(μ)),
         time_domain,
         solver;
-        μ = 0.0,
         callback = nothing,
         abstol = 1e-8,
         reltol = 1e-8,
