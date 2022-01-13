@@ -8,7 +8,15 @@ function create_callback_set(m::AbstractMetricParams{T}, cb::Nothing) where {T}
     mcb isa Tuple ? CallbackSet(mcb...) : mcb
 end
 
-function create_callback_set(m::AbstractMetricParams{T}, cb::Tuple) where {T}
+function create_callback_set(
+    m::AbstractMetricParams{T},
+    cb::NTuple{N,SciMLBase.DECallback}
+) where {T,N}
     mcb = metric_callback(m)
     mcb isa Tuple ? CallbackSet(mcb..., cb...) : CallbackSet(mcb, cb...)
+end
+
+function create_callback_set(m::AbstractMetricParams{T}, cb::SciMLBase.DECallback) where {T}
+    mcb = metric_callback(m)
+    mcb isa Tuple ? CallbackSet(mcb..., cb) : CallbackSet(mcb, cb)
 end
