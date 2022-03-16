@@ -1,6 +1,7 @@
 module GeodesicTracer
 
-using DifferentialEquations
+using OrdinaryDiffEq
+using DiffEqCallbacks
 using StaticArrays
 using DocStringExtensions
 using Parameters
