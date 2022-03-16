@@ -1,7 +1,9 @@
 module GeodesicTracer
 
+using SciMLBase
 using OrdinaryDiffEq
 using DiffEqCallbacks
+
 using StaticArrays
 using DocStringExtensions
 using Parameters
