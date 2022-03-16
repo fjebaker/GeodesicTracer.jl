@@ -4,3 +4,4 @@ venv
 build
 
 copy_docs
+Manifest.toml
