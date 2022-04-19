@@ -11,7 +11,6 @@ using Parameters
 import GeodesicBase: AbstractMetricParams, geodesic_eq, constrain, on_chart, inner_radius
 
 import ForwardDiff
-import Tullio: @tullio
 
 include("callbacks.jl")
 include("problem.jl")
