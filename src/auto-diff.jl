@@ -90,7 +90,7 @@ jacobian = (j0, j1_mat, j2_mat, j0)
 @tullio δxδλ[i] := -v[j] * Γ[i, j, k] * v[k]
 ```
 """
-@fastmath function compute_geodesic_equation(ginv, j1, j2, v::SVector{4, T}) where {T}
+@fastmath function compute_geodesic_equation(ginv, j1, j2, v::SVector{4,T}) where {T}
     @inbounds @SVector [
         -2(0.5ginv[5] * j1[4] + 0.5ginv[1] * j1[5]) * v[2] * v[4] -
         2(0.5ginv[1] * j1[1] + 0.5ginv[5] * j1[5]) * v[1] * v[2] -
@@ -113,8 +113,31 @@ jacobian = (j0, j1_mat, j2_mat, j0)
     ]
 end
 
+@fastmath function constrain_time(g_comp, v, μ=0.0, positive::Bool = true)
+    @inbounds begin
+        discriminant = (
+            -g_comp[1] * g_comp[2] * v[2]^2 - g_comp[1] * g_comp[3] * v[3]^2 -
+            g_comp[1] * μ^2 - (g_comp[1] * g_comp[4] - g_comp[5]^2) * v[4]^2
+        )
+        if positive
+            -(g_comp[5] * v[4] + √discriminant) / g_comp[1]
+        else
+            -(g_comp[5] * v[4] - √discriminant) / g_comp[1]
+        end
+    end
+end
 
-@inbounds function geodesic_eq(m::AbstractAutoDiffStaticAxisSymmetricParams{T}, u, v) where {T}
+function constrain(m::AbstractAutoDiffStaticAxisSymmetricParams{T}, u, v; μ::T = 0.0) where {T}
+    rθ = @SVector [u[2], u[3]]
+    g_comps = metric_components(m, rθ) 
+    constrain_time(g_comps, v, μ)
+end
+
+@inbounds function geodesic_eq(
+    m::AbstractAutoDiffStaticAxisSymmetricParams{T},
+    u,
+    v
+) where {T}
     # get the only position components we need for this metric type
     rθ = @SVector [u[2], u[3]]
     # calculate all non-zero components
