@@ -8,13 +8,16 @@ using StaticArrays
 using DocStringExtensions
 using Parameters
 
-using GeodesicBase
+import GeodesicBase: AbstractMetricParams, geodesic_eq, constrain, on_chart, inner_radius
+
+import ForwardDiff
 
 include("callbacks.jl")
 include("problem.jl")
 include("tracer.jl")
 include("constraints.jl")
 include("utility.jl")
+include("auto-diff.jl")
 
 """
     tracegeodesics(
