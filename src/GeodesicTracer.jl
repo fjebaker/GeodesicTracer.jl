@@ -8,7 +8,7 @@ using StaticArrays
 using DocStringExtensions
 using Parameters
 
-using GeodesicBase
+import GeodesicBase: AbstractMetricParams, geodesic_eq, constrain, on_chart, inner_radius
 
 include("callbacks.jl")
 include("problem.jl")
